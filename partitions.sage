@@ -29,6 +29,9 @@ def caseTwo(m,n,k,t):
     A= max(t-n,0)
     L=B-A
     return sum([min((2*j+(t%2)), k-B+j)+1 for j in range(0,L+1)])
+    
+def hi():
+    print('hi')
 
 
 # Reload file in interactive Sage environment
