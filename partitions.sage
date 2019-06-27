@@ -37,9 +37,16 @@ def simplificationOne(m,n,k,t):
     B= min(floor(t/2),k)
     A= max(t-n,0)
     L=B-A
-    return sum([k-B+j for j in range(0,k-B-t%2+1)])
-    +sum([2*j+t%2 for j in range(k-B-t%2+1,L+1)])
-    +sum([1 for j in range(0,L+1)])
+    i=k-B-t%2
+    if(0<=i<=L):
+        print("Case Two")
+        return sum([2*j+t%2 for j in range(0,max(k-B-t%2,0))])+sum([k-B+j for j in range(max(0,k-B-t%2),L+1)])+L+1
+    if(i>L):
+        print("Case Three")
+        return (L+1)*(L+t%2+1)
+    if(i<L):
+        print("Case One")
+        return (L+1)*(2*k-2*B+L+2)/2
 
 def checkOne(m,n,k):
     for i in range(0,2*n+1):
@@ -50,7 +57,8 @@ def checkTwo(m,n,k):
         print(caseTwo(m,n,k,i))
 
 def checkSimple(m,n,k):
-    for i in range
+    for i in range(0,n+k+1):
+        print(simplificationOne(m,n,k,i))
 
 # Reload file in interactive Sage environment
 def rl():
