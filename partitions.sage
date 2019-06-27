@@ -31,10 +31,6 @@ def caseTwo(m,n,k,t):
     return sum([min((2*j+(t%2)), k-B+j)+1 for j in range(0,L+1)])
 
 
-def asdf():
-    print("hello")
-
-
 # Reload file in interactive Sage environment
 def rl():
     load('partitions.sage')
