@@ -37,14 +37,14 @@ def simplificationOne(m,n,k,t):
     B= min(floor(t/2),k)
     A= max(t-n,0)
     L=B-A
-    i=k-B-t%2
-    if(0<=i<=L):
-        print("Case Two")
-        return sum([2*j+t%2 for j in range(0,max(k-B-t%2,0))])+sum([k-B+j for j in range(max(0,k-B-t%2),L+1)])+L+1
-    if(i>L):
+    J=k-B-t%2
+    if(0<=J<=L):
+       print("Case Two")
+       return 1/2 * J*(J+1) + (t%2)*(J+1) + (L-J)*(k-B) + L/2 * (L+1) + L+1
+    if(J>L):
         print("Case Three")
         return (L+1)*(L+t%2+1)
-    if(i<L):
+    if(J<L):
         print("Case One")
         return (L+1)*(2*k-2*B+L+2)/2
 
