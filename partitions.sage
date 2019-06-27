@@ -1,11 +1,10 @@
 def listPartitions(m,n,k):
     v=[]
     for f in range(0,min(m,n,k)+1):
-        for d in range(1,min(m-f,n-f)+1):
+        for d in range(0,min(m-f,n-f)+1):
             for e in range(0, min(n-f-d,k-f)+1):
-                v.append((m-d-f,m-d-e-f,k-e-f,d,e,f))
+                v.append((m-d-f,n-d-e-f,k-e-f,d,e,f))
     return v
-
 
 
 def qPoly(m,n,k):
@@ -14,7 +13,7 @@ def qPoly(m,n,k):
     for f in range(0,min(m,n,k)+1):
         for d in range(0,min(m-f,n-f)+1):
             for e in range(0, min(n-f-d,k-f)+1):
-                v +=q^(m+n+k-2*f-e-d)
+                v+=q^(m+n+k-2*f-e-d)
     return v
 
 
@@ -30,6 +29,7 @@ def caseTwo(m,n,k,t):
     A= max(t-n,0)
     L=B-A
     return sum([min((2*j+(t%2)), k-B+j)+1 for j in range(0,L+1)])
+
 
 # Reload file in interactive Sage environment
 def rl():
