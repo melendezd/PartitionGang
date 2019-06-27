@@ -40,7 +40,8 @@ def simplificationOne(m,n,k,t):
     J=k-B-t%2
     if(0<=J<=L):
        print("Case Two")
-       return 1/2 * J*(J+1) + (t%2)*(J+1) + (L-J)*(k-B) + L/2 * (L+1) + L+1
+       # return 1/2 * J*(J+1) + (t%2)*(J+1) + (L-J)*(k-B) + L/2 * (L+1) + L+1
+       return -k**2/2 + k*(t%2) - 3/2*B*(t%2) - B/2 + B*k - B**2/2 - B*L + k*L + k/2 + B*(t%2)/2 + (L+1)*(L+2)/2    
     if(J>L):
         print("Case Three")
         return (L+1)*(L+t%2+1)
