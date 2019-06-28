@@ -39,16 +39,16 @@ def simplificationOne(m,n,k,t):
     L=B-A
     J=k-B-t%2
     if(0<=J<=L):
-       print("Case Two")
+       #print("Case Two")
        # return 1/2 * J*(J+1) + (t%2)*(J+1) + (L-J)*(k-B) + L/2 * (L+1) + L+1
        #return -k**2/2 + k*(t%2) - 3/2*B*(t%2) - B/2 + B*k - B**2/2 - B*L + k*L + k/2 + B*(t%2)/2 + (L+1)*(L+2)/2    
        return (L+1)*(L+2)/2 - B*(B+1)/2 - k*(k-1)/2 + B*k + k*L - B*L + (k-B)*(t%2)
        #return -k**2/2 - B**2/2 - B/2 + k/2 + (k + 1/2*B)*(t%2)  + B*k  - B*L + k*L + B*(t%2)/2 + (L+1)*(L+2)/2    
     if(J>L):
-        print("Case Three")
+        #print("Case Three")
         return (L+1)*(L+t%2+1)
     if(J<L):
-        print("Case One")
+        #print("Case One")
         return (L+1)*(2*k-2*B+L+2)/2
 
 def checkOne(m,n,k):
@@ -60,8 +60,11 @@ def checkTwo(m,n,k):
         print(caseTwo(m,n,k,i))
 
 def checkSimple(m,n,k):
+    v = 0
+    q = var('q')
     for i in range(0,n+k+1):
-        print(simplificationOne(m,n,k,i))
+        v += simplificationOne(m,n,k,i) * q^(m+n+k-i)
+    return v
 
 # Reload file in interactive Sage environment
 def rl():
