@@ -17,7 +17,7 @@ def Partition(m,n,k):
     return v
 
 def qPoly(m,n,k):
-    v=0
+    v=0 
     q=var('q')
     for f in range(0,min(m,n,k)+1):
         for d in range(0,min(m-f,n-f)+1):
@@ -55,8 +55,8 @@ def simplificationOne(m,n,k,t):
     L=B-A
     i=k-B-t%2
     if(0<=i<=L):
-        print("Case Two")
-        return -(k^2/2)+k*(t%2)-3*B*t%2/2-B/2+B*k-B^2/2-B*L+k*L+k/2+(L+1)*(L+2)/2
+       print("Case Two")
+       return 1/2 * i*(i+1) + (t%2)*(i+1) + (L-i)*(k-B) + L/2 * (L+1) + L+1
     if(i>L):
         print("Case Three")
         return (L+1)*(L+t%2+1)
