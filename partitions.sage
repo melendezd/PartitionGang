@@ -64,6 +64,22 @@ def simplificationOne(m,n,k,t):
         print("Case One")
         return (L+1)*(2*k-2*B+L+2)/2
 
+#m=<n=<k
+def simplificationTwo(m,n,k,t):
+    B= min(floor(t/2),m)
+    A= max(t-n,0)
+    L=B-A
+    i=m-B-t%2
+    if(0<=i<=L):
+       print("Case Two")
+       return 1/2 * i*(i+1) + (t%2)*(i+1) + (L-i)*(m-B) + L/2 * (L+1) + L+1
+    if(i>L):
+        print("Case Three")
+        return (L+1)*(L+t%2+1)
+    if(i<L):
+        print("Case One")
+        return (L+1)*(2*m-2*B+L+2)/2
+
 def checkOne(m,n,k):
     for i in range(0,2*n+1):
         print(caseOne(m,n,k,i))
@@ -72,11 +88,19 @@ def checkTwo(m,n,k):
     for i in range(0,n+k+1):
         print(caseTwo(m,n,k,i))
 
-def checkSimple(m,n,k):
+def checkSimpleOne(m,n,k):
     for i in range(0,n+k+1):
         print(simplificationOne(m,n,k,i))
 
+def checkSimpleTwo(m,n,k):
+    for i in range(0,m+n+1):
+        print(simplificationTwo(m,n,k,i))
+
 def massPolyCheck():
+    for i in range(0,random.randint(0,1000)):
+        checkPoly(random.randint(0,1000)+i,random.randint(0,1000)+i,random.randint(0,1000)+i)
+
+def massSimpleCheck():
     for i in range(0,random.randint(0,1000)):
         checkPoly(random.randint(0,1000)+i,random.randint(0,1000)+i,random.randint(0,1000)+i)
 
