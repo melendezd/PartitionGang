@@ -30,8 +30,24 @@ def caseTwo(m,n,k,t):
     L=B-A
     return sum([min((2*j+(t%2)), k-B+j)+1 for j in range(0,L+1)])
 
-def hi():
-    print('hello')
+def caseThree1(m,n,k,t):
+    #(a,c) = var('a c')
+    A = max(t-m-k,0)
+    B = min(floor(t/2),k)
+    #C = max(t-c-k,0)
+    #D = min([t-2*c,m-c])
+
+    #return sum(sum(1,a,C,D),c,A,B)
+    #return sum(sum(1,a,max(t-c-k,0),min(t-2*c,m-c)),c,A,B)
+    return sum([sum([1 for a in range(max(t-c-k,0),min(t-2*c,m-c)+1)]) for c in range(A,B+1)])
+
+def checkThreeClosed1(m,n,k):
+    v = 0
+    q = var('q')
+    for t in range(0,k+m+1):
+        v += caseThree1(m,n,k,t) * q^(m+n+k-t)
+    return v
+
 
 def simplificationOne(m,n,k,t):
     B= min(floor(t/2),k)
@@ -58,6 +74,7 @@ def checkOne(m,n,k):
 def checkTwo(m,n,k):
     for i in range(0,n+k+1):
         print(caseTwo(m,n,k,i))
+
 
 def checkSimple(m,n,k):
     v = 0
