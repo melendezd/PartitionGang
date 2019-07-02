@@ -80,6 +80,38 @@ def simplificationTwo(m,n,k,t):
         print("Case One")
         return (L+1)*(2*m-2*B+L+2)/2
 
+#n>=m>=k, n>=m+k
+def simplificationThree(m,n,k,t):
+    A2= min(floor(t/2),k)
+    #A1= max(t-(m+k),0)
+    #A1=0
+    #C1=max(t-k-c,0)
+    #C2=min(t-2*c,m-c)
+    #return sum([(min(t-2*c,m-c)-max(t-k-c,0)+1) for c in range(0,A2+1)])
+    if(t-m<0):
+        #s1=sum([t-2*c for c in range(0,A2+1)])
+        s1=(A2+1)*(t-A2)
+    elif(0<=t-m<=A2):
+        #s1=sum([m-c for c in range(0,t-m+1)])+sum([t-2*c for c in range(t-m+1,A2+1)])
+        s1=(t-m+1)*(m-t)/2 + (A2+1)*(t-A2)
+    #elif(t-m>A2):
+        #s1=sum([m-c for c in range(0,t-m+1)])
+        #s1=(m-c)*(A2+1)
+
+    if(t-k<0):
+        s2=0
+    elif(0<=t-k<=A2):
+        #s2=sum([t-k-c for c in range(0,t-k+1)])
+        s2=(t-k)*(t-k+1)/2
+    elif(t-k>A2):
+        #s2=sum([t-k-c for c in range(0,A2+1)])
+        s2=(A2+1)*(2*t-2*k-A2)/2
+    return s1-s2+A2+1
+
+    
+#n>=m>=k, n<=m+k
+
+
 def checkOne(m,n,k):
     for i in range(0,2*n+1):
         print(caseOne(m,n,k,i))
@@ -95,6 +127,10 @@ def checkSimpleOne(m,n,k):
 def checkSimpleTwo(m,n,k):
     for i in range(0,m+n+1):
         print(simplificationTwo(m,n,k,i))
+
+def checkSimpleThree(m,n,k):
+    for i in range(0,k+m+1):
+        print(simplificationThree(m,n,k,i))
 
 def massPolyCheck():
     for i in range(0,random.randint(0,1000)):
