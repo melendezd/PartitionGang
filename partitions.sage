@@ -1,5 +1,6 @@
 import random
 
+q=var('q')
 def listPartitions(m,n,k):
     v=[]
     for f in range(0,min(m,n,k)+1):
@@ -34,8 +35,15 @@ def checkPoly(m,n,k):
 
 # m,k => n
 def caseOne(m,n,k,t):
-    L=min(floor(t/2), n-ceil(t/2))
-    return sum([2*j+t%2+1 for j in range(0,L+1)])
+    #L=min(floor(t/2), n-ceil(t/2))
+    C1=max(0,t-n)
+    C2=floor(t/2)
+    L=C2-C1
+    #A1=0
+    #A2=t-2*c
+    #return sum([2*j+t%2+1 for j in range(0,L+1)])
+    #return sum([sum([1 for a in range(0, t-2*c+1)]) for c in range(C1,C2+1)])
+    return (L+1)*(L+t%2+1)
 
 
 # m => n => k
@@ -109,10 +117,21 @@ def simplificationThree(m,n,k,t):
     C1= max(t-n,0)
     #A1=max(t-k-c,0)
     #A2=min(t-2*c,m-c)    
-    return sum([(min(t-2*c,m-c)-max(t-k-c,0)+1) for c in range(C1,C2+1)])
-    
-#n>=m>=k, n<=m+k
+    #return sum([(min(t-2*c,m-c)-max(t-k-c,0)+1) for c in range(C1,C2+1)])
+    if(t-m<0):
+        s1= t*(C2-C1+1)-C2*(C2+1)
+    elif(0<=t-m<=C2):
+        s1=(t-m+1)*(t-m)/2 + m*(t-m-C1+1)+C1*(C1-1)/2+t*(C2-t+m)-C2*(C2+1)
+    #elif(t-m>C2):
+        #s1=m*(C2-C1+1)+(C1*(C1-1)-C2*(C2+1))/2
 
+    if(t-k<0):
+        s2=0
+    elif(0<=t-k<=C2):
+        s2=(t-k)*(t-k-C1+1)-(t-k)*(t-k+1)/2+C1*(C1-1)/2
+    elif(t-k>C2):
+        s2=(t-k)*(C2-C1+1)-C2*(C2+1)/2+C1*(C1-1)/2
+    return s1-s2+C2-C1+1
 
 def checkOne(m,n,k):
     p = 0
@@ -172,13 +191,19 @@ def simpleDirect(m,n,k):
 def polyDiff(m,n,k):
     sum = qPoly(m,n,k)-simpleDirect(m,n,k)
     if(sum == 0):
+        print("All clear!")
         return True
     else:
-        return (m,n,k) and False
+        print("Oops! There was an issue!")
+        return False
+
+def displayPoly(m,n,k):
+    yield qPoly(m,n,k)
+    yield simpleDirect(m,n,k)
 
 def massPolyDiff():
-    for i in range(0,random.randint(0,1000)):
-        polyDiff(random.randint(0,1000)+i,random.randint(0,1000)+i,random.randint(0,1000)+i)
+    for i in range(0,random.randint(0,100)):
+        polyDiff(random.randint(0,100),random.randint(0,100),random.randint(0,100))
         if(False):
             break
 
