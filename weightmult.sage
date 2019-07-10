@@ -7,7 +7,7 @@ def init():
     #Q.<m,n,k,c1,c2,c3> = QQ['m','n', 'k', 'c_1', 'c_2', 'c_3']
 
     #Q = SR
-    var('m n k c1 c2 c3')
+    var('m n k c1 c2 c3 x y z')
 
     #R = RootSystem(['A', 3])
     #space = R.root_lattice()
@@ -44,9 +44,13 @@ def init():
     # Substitutions for integrality conditions
     sub_1 = matrix([[3,2,1],[1,2,1],[1,2,3]],ring=SR).solve_right(vector([4*x+3*c1+2*c2+c3,2*y+c1+2*c2+c3,4*z+c1+2*c2+3*c3]))
     sub_s1 = matrix([[-1,2,1],[1,2,1],[1,2,3]],ring=SR).solve_right(vector([4*x + 3*c1 + 2*c2 + c3, 2*y + c1 + 2*c2 + c3, 4*z + c1 + 2*c2 + 3*c3]))
+    sub_s2 = matrix([[3,2,1],[1,0,1],[1,2,3]],ring=SR).solve_right(vector([4*x+3*c1+2*c2+c3,2*y+c1+2*c2+c3,4*z+c1+2*c2+3*c3]))
+    sub_s3 = matrix([[3,2,1],[1,2,1],[1,2,-1]],ring=SR).solve_right(vector([4*x+3*c1+2*c2+c3,2*y+c1+2*c2+c3,4*z+c1+2*c2+3*c3]))
 
     sub_1_result = weyl_actions_sub(*sub_1);
     sub_s1_result = weyl_actions_sub(*sub_s1);
+    sub_s2_result = weyl_actions_sub(*sub_s2);
+    sub_s3_result = weyl_actions_sub(*sub_s3);
 
 #W = WeylGroup(['A', 3], prefix='s')
 #L = W.domain()
