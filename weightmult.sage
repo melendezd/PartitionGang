@@ -1,5 +1,6 @@
 def init():
-    global W,a,P,a1,a2,a3,w1,w2,w3,rho,lam,mu,root_matrix
+    global W,a,P,a1,a2,a3,w1,w2,w3,rho,lam,mu,root_matrix,sub_1,sub_s1,sub_s2,sub_s3
+    global sub_1_result,sub_s1_result,sub_s2_result,sub_s3_result
     # We are working in the Lie algebra of type A_r
     r = 3
 
@@ -39,6 +40,13 @@ def init():
 
     # Matrix where columns are the alpha's
     root_matrix = matrix([ambient_to_list(a[i]) for i in range(1,4)],ring=SR).transpose()
+
+    # Substitutions for integrality conditions
+    sub_1 = matrix([[3,2,1],[1,2,1],[1,2,3]],ring=SR).solve_right(vector([4*x+3*c1+2*c2+c3,2*y+c1+2*c2+c3,4*z+c1+2*c2+3*c3]))
+    sub_s1 = matrix([[-1,2,1],[1,2,1],[1,2,3]],ring=SR).solve_right(vector([4*x + 3*c1 + 2*c2 + c3, 2*y + c1 + 2*c2 + c3, 4*z + c1 + 2*c2 + 3*c3]))
+
+    sub_1_result = weyl_actions_sub(*sub_1);
+    sub_s1_result = weyl_actions_sub(*sub_s1);
 
 #W = WeylGroup(['A', 3], prefix='s')
 #L = W.domain()
