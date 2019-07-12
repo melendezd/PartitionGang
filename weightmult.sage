@@ -24,6 +24,7 @@ def init():
     a2 = ambient_to_vector(a[2])
     a3 = ambient_to_vector(a[3])
 
+
     # omega 1,2,3
     #w1 = omega(1,r)
     #w2 = omega(2,r)
@@ -71,9 +72,24 @@ def give_me_subsets(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
                 alternation.add(frozenset(thisone))
     return alternation
 
-    #return {frozenset(p[0] for p in sub_1_result if vec_nonnegative(p[1].substitute([m==m_,n==n_,k==k_,c1==c1_,c2==c2_,c3==c3_]))) for m_ in range(0,20) for n_ in range(0,10) for k_ in range(0,10) for c1_ in range(0,1) for c2_ in range(0,1) for c3_ in range(0,1)}
-    #return [p[0] for p in sub_1_result  for m_ in range(0,2) for n_ in range(0,2) for k_ in range(0,2) for c1_ in range(0,1) for c2_ in range(0,1) for c3_ in range(0,1) if vec_nonnegative(p[1].substitute([m==m_,n==n_,k==k_,c1==c1_,c2==c2_,c3==c3_])) ]
+def give_me_subsets_par(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
+    pts = [(x_,y_,z_,c1_,c2_,c3_) for x_ in range(b1,b2) for y_ in range(b3,b4) for z_ in range(b5,b6)]
+    lst = list(find_subset([pt for pt in pts]));
+    alternation = {j[1] for j in lst}
+    return alternation
 
+@parallel
+def find_subset(x_,y_,z_,c1_,c2_,c3_):
+    subset = set()
+    for p in sub_1_result:
+        vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
+        if(vec_nonnegative(vec)):
+            subset.add(p[0])
+    return frozenset(subset)
+
+@parallel
+def doit(o):
+    return o^2
 
 def vec_nonnegative(v):
     return all([b >= 0 for b in v]);
@@ -111,7 +127,7 @@ def ambient_to_alpha_coords(v):
 
 def vector_to_alpha_coords(v):
     return root_matrix.solve_right(v)
-    
+
 
 # We wish to find the w's (omegas) #
 # Finds omega_i for the Lie algebra of type A_l
@@ -121,6 +137,7 @@ def omega(i,l):
 def rl():
     load('weightmult.sage')
     init()
+
 
 
 init()
