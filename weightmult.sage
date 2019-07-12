@@ -57,6 +57,27 @@ def init():
 #P = L.positive_roots()
 #a = L.simple_roots().list()
 
+def give_me_subsets(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
+    alternation = set()
+    for x_ in range(b1,b2):
+        print(x_)
+        for y_ in range(b3,b4):
+            for z_ in range(b5,b6):
+                thisone = set()
+                for p in sub_1_result:
+                    vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
+                    if(vec_nonnegative(vec)):
+                        thisone.add(p[0])
+                alternation.add(frozenset(thisone))
+    return alternation
+
+    #return {frozenset(p[0] for p in sub_1_result if vec_nonnegative(p[1].substitute([m==m_,n==n_,k==k_,c1==c1_,c2==c2_,c3==c3_]))) for m_ in range(0,20) for n_ in range(0,10) for k_ in range(0,10) for c1_ in range(0,1) for c2_ in range(0,1) for c3_ in range(0,1)}
+    #return [p[0] for p in sub_1_result  for m_ in range(0,2) for n_ in range(0,2) for k_ in range(0,2) for c1_ in range(0,1) for c2_ in range(0,1) for c3_ in range(0,1) if vec_nonnegative(p[1].substitute([m==m_,n==n_,k==k_,c1==c1_,c2==c2_,c3==c3_])) ]
+
+
+def vec_nonnegative(v):
+    return all([b >= 0 for b in v]);
+
 # Gives us everything
 def weyl_actions():
     return [(s,vector_to_alpha_coords(s.matrix() * (lam + rho) - (rho + mu))) for s in W]
