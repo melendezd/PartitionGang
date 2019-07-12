@@ -78,6 +78,12 @@ def give_me_subsets_par(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
     alternation = {j[1] for j in lst}
     return alternation
 
+def give_me_subsets_par_2(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
+    pts = [(x_,y_,b5,b6,c1_,c2_,c3_) for x_ in range(b1,b2) for y_ in range(b3,b4)]
+    lst = list(find_subsets_z([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
 @parallel
 def find_subset(x_,y_,z_,c1_,c2_,c3_):
     subset = set()
@@ -86,6 +92,19 @@ def find_subset(x_,y_,z_,c1_,c2_,c3_):
         if(vec_nonnegative(vec)):
             subset.add(p[0])
     return frozenset(subset)
+
+@parallel
+def find_subsets_z(x_,y_,z1,z2,c1_,c2_,c3_):
+    theset = set()
+
+    for z_ in range(z1, z2):
+        subset = set()
+        for p in sub_1_result:
+            vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
+            if(vec_nonnegative(vec)):
+                subset.add(p[0])
+        theset.add(frozenset(subset))
+    return theset
 
 @parallel
 def doit(o):
