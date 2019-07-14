@@ -2,6 +2,7 @@ def init():
     global W,a,P,a1,a2,a3,w1,w2,w3,rho,lam,mu,root_matrix,sub_1,sub_s1,sub_s2,sub_s3
     global sub_1_result,sub_s1_result,sub_s2_result,sub_s3_result
     global rows
+    global sub_1_callable
     # We are working in the Lie algebra of type A_r
     r = 3
 
@@ -53,6 +54,8 @@ def init():
     sub_s1_result = weyl_actions_sub(*sub_s1);
     sub_s2_result = weyl_actions_sub(*sub_s2);
     sub_s3_result = weyl_actions_sub(*sub_s3);
+
+    sub_1_callable = [[fast_callable(p[1][i][0], vars=[x,y,z,c1,c2,c3]) for i in range(0,3)] for p in sub_1_result]
 
     
 def computePts():
@@ -133,6 +136,24 @@ def give_me_subsets_par_z(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
 
+def give_me_subsets_par_z_6(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
+    pts = [(x_,y_,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2)
+            for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2) 
+            for c3_ in range(c3_1,c3_2)]
+    lst = list(find_subsets_z([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
+
+def give_me_subsets_par_z_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
+    pts = [(x_,y_,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2)
+            for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2) 
+            for c3_ in range(c3_1,c3_2)]
+    lst = list(find_subsets_z_op([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
+
 def give_me_subsets_par_yz(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
     pts = [(x_,b3,b4,b5,b6,c1_,c2_,c3_) for x_ in range(b1,b2)]
     lst = list(find_subsets_yz([pt for pt in pts]));
@@ -169,6 +190,23 @@ def find_subsets_z(x_,y_,z1,z2,c1_,c2_,c3_):
                 subset.add(p[0])
         theset.add(frozenset(subset))
     return theset
+
+@parallel
+def find_subsets_z_op(x_,y_,z1,z2,c1_,c2_,c3_):
+    theset = set()
+
+    for z_ in range(z1, z2):
+        subset = set()
+        #for p in sub_1_callable:
+        for i in range(0,len(sub_1_callable)):
+            #vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
+            p = sub_1_callable[i]
+            if(p[0](x_,y_,z_,c1_,c2_,c3_) >= 0 and p[1](x_,y_,z_,c1_,c2_,c3_)>=0
+                    and p[2](x_,y_,z_,c1_,c2_,c3_)>=0):
+                subset.add(sub_1_result[i][0])
+        theset.add(frozenset(subset))
+    return theset
+
 
 @parallel
 def find_subsets_yz(x_,y1,y2,z1,z2,c1_,c2_,c3_):
