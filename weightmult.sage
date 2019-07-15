@@ -1,9 +1,13 @@
-# We are working in the Lie algebra of type A_r
+    # We are working in the Lie algebra of type A_r
 r = 3
 
 #Q.<m,n,k,c1,c2,c3> = QQ['m','n', 'k', 'c_1', 'c_2', 'c_3']
 #Q = SR
 var('m n k c1 c2 c3')
+
+def ambient_to_vector(v):
+    return matrix([v[i] for i in range(0,4)],ring=SR).transpose()
+
 
 #R = RootSystem(['A', 3])
 #space = R.root_lattice()
@@ -55,9 +59,6 @@ def weyl_actions():
 # Takes ambient space vector and converts to matrix
 def ambient_to_list(v):
     return [v[i] for i in range(0,4)]
-
-def ambient_to_vector(v):
-    return matrix([v[i] for i in range(0,4)],ring=SR).transpose()
 
 
 # Take R4 vector and gives coordinates in terms of alpha's
