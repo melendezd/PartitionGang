@@ -1,41 +1,42 @@
 def init():
-    global W,a,P,a1,a2,a3,w1,w2,w3,rho,lam,mu,root_matrix,sub_1,sub_s1,sub_s2,sub_s3
-    global sub_1_result,sub_s1_result,sub_s2_result,sub_s3_result
-    global rows
-    global sub_1_callable
     # We are working in the Lie algebra of type A_r
     r = 3
 
     # Initialize symbolic variables
-    # For coefficients of lambda and mu
+    # for coefficients of lambda and mu
     var('m n k c1 c2 c3 x y z')
 
     # Initialize Weyl group and root system
+    global W,a,p
     W = WeylGroup(['A', 3], prefix='s')
     a = W.domain().simple_roots()
     P = W.domain().positive_roots()
 
     # Initialize alpha 1, 2, and 3 as column matrices over SR
+    global a1,a2,a3
     a1 = ambient_to_vector(a[1])
     a2 = ambient_to_vector(a[2])
     a3 = ambient_to_vector(a[3])
 
-
     # Initialize omega 1,2,3 as column matrices over SR
+    global w1,w2,w3
     w1 = (1/4) * (3*a1 + 2*a2 + 1*a3)
     w2 = (1/2) * (1*a1 + 2*a2 + 1*a3)
     w3 = (1/4) * (1*a1 + 2*a2 + 3*a3)
 
     # Initialize rho, mu, lambda as column matrices over SR
+    global rho,lam,mu
     rho = ambient_to_vector((1/2) * sum(P))
     lam = m*w1 + n*w2 + k*w3
     mu = c1*w1 + c2*w2 + c3*w3
 
     # Matrix where columns are the alpha's
+    global root_matrix
     root_matrix = matrix([ambient_to_list(a[i]) for i in range(1,4)],ring=SR).transpose()
 
     # Substitutions of m,n,k in terms of x,y,z,c1,c2,c3 to ensure that alpha coefficients
     # in partition function input are integers for integral x,y,z
+    global sub_1, sub_s1, sub_s2, sub_s3
     sub_1 = matrix([[3,2,1],[1,2,1],[1,2,3]],ring=SR).solve_right(vector([4*x+3*c1+2*c2+c3,2*y+c1+2*c2+c3,4*z+c1+2*c2+3*c3]))
     sub_s1 = matrix([[-1,2,1],[1,2,1],[1,2,3]],ring=SR).solve_right(vector([4*x + 3*c1 + 2*c2 + c3, 2*y + c1 + 2*c2 + c3, 4*z + c1 + 2*c2 + 3*c3]))
     sub_s2 = matrix([[3,2,1],[1,0,1],[1,2,3]],ring=SR).solve_right(vector([4*x+3*c1+2*c2+c3,2*y+c1+2*c2+c3,4*z+c1+2*c2+3*c3]))
@@ -43,14 +44,18 @@ def init():
 
     # sigma(lam+rho) - (rho + mu) with integrality substitutions for m,n,k
     # applied
+    global sub_1_result, sub_s1_result, sub_s2_result, sub_s3_result
     sub_1_result = weyl_actions_sub(*sub_1);
     sub_s1_result = weyl_actions_sub(*sub_s1);
     sub_s2_result = weyl_actions_sub(*sub_s2);
     sub_s3_result = weyl_actions_sub(*sub_s3);
 
+    global sub_1_callable
     sub_1_callable = [[fast_callable(p[1][i][0], vars=[x,y,z,c1,c2,c3]) for i in range(0,3)] for p in sub_1_result]
 
 
+# Computes the points of intersection between the hyperplanes determined
+# by each Weyl group element (6-dimensional in x,y,z,c1,c2,c3)
 def computePts():
     global mats, vecs, pts
     rows = [[1,0,0,0,0,0],[-1,-1,-1,0,0,-1],[-1,-1,0,0,-1,1],[-1,0,0,-1,1,0],[0,0,0,0,1,0],
@@ -77,12 +82,6 @@ def computePts():
     for p in pts:
         p.set_immutable()
 
-
-#W = WeylGroup(['A', 3], prefix='s')
-#L = W.domain()
-#P = L.positive_roots()
-#a = L.simple_roots().list()
-
 ################################################################################
 ################################################################################
 # Runs through all points (x_, y_, z_) for
@@ -94,12 +93,11 @@ def computePts():
 # (i.e. which Weyl group elements contribute).
 # Possible contributing subsets of Weyl group elements are then conglomerated
 # into a larger set, which is returned.
-def give_me_subsets(x1, x2, y1, y2, z1, z2, c1_,c2_,c3_):
+def give_me_subsets(x_range, y_range, z_range, c1_, c2_, c3_):
     alternation = set()
-    for x_ in range(x1,x2):
-        print(x_)
-        for y_ in range(y1,y2):
-            for z_ in range(z1,z2):
+    for x_ in range(*x_range):
+        for y_ in range(*y_range):
+            for z_ in range(*z_range):
                 thisone = set()
                 for p in sub_1_result:
                     vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
@@ -108,12 +106,25 @@ def give_me_subsets(x1, x2, y1, y2, z1, z2, c1_,c2_,c3_):
                 alternation.add(frozenset(thisone))
     return alternation
 
-def give_me_subsets_6(b1, b2, b3, b4, b5, b6, c1_1, c1_2, c2_1,c2_2,c3_1,c3_2):
+
+# Runs through all points (x_, y_, z_, c1_, c2_, c3_) for
+# * x1 <= x_ < x2
+# * y1 <= y_ < y2
+# * z1 <= z_ < z2.
+# * c1_1 <= c1_ < c1_2.
+# * c2_1 <= c2_ < c2_2.
+# * c3_1 <= c3_ < c3_2.
+# Substitutes x_, y_, z_, c1_, c2_, c3_ into sub_1_result and determines
+# which Weyl group elements yield non-negative alpha coefficients as a result
+# (i.e. which Weyl group elements contribute).
+# Possible contributing subsets of Weyl group elements are then conglomerated
+# into a larger set, which is returned.
+def give_me_subsets_6(x1, x2, y1, y2, z1, z2, c1_1, c1_2, c2_1,c2_2,c3_1,c3_2):
     alternation = set()
-    for x_ in range(b1,b2):
+    for x_ in range(x1,x2):
         print(x_)
-        for y_ in range(b3,b4):
-            for z_ in range(b5,b6):
+        for y_ in range(y1,y2):
+            for z_ in range(z1,z2):
                 for c1_ in range(c1_1,c1_2):
                     for c2_ in range(c2_1,c2_2):
                         for c3_ in range(c3_1,c3_2):
@@ -127,19 +138,21 @@ def give_me_subsets_6(b1, b2, b3, b4, b5, b6, c1_1, c1_2, c2_1,c2_2,c3_1,c3_2):
     return alternation
 
 
-def give_me_subsets_par(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
-    pts = [(x_,y_,z_,c1_,c2_,c3_) for x_ in range(b1,b2) for y_ in range(b3,b4) for z_ in range(b5,b6)]
+def give_me_subsets_par(x1, x2, y1, y2, z1, z2, c1_,c2_,c3_):
+    pts = [(x_,y_,z_,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2)
+        for z_ in range(z1,z2)]
     lst = list(find_subset([pt for pt in pts]));
     alternation = {j[1] for j in lst}
     return alternation
 
-
-def give_me_subsets_par_z(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
-    pts = [(x_,y_,b5,b6,c1_,c2_,c3_) for x_ in range(b1,b2) for y_ in range(b3,b4)]
+# give_me_subsets but with the innermost for loop parallelized
+def give_me_subsets_par_z(x1, x2, y1, y2, z1, z2, c1_,c2_,c3_):
+    pts = [(x_,y_,b5,b6,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2)]
     lst = list(find_subsets_z([pt for pt in pts]));
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
 
+# give_me_subsets_6 but with the innermost for loop parallelized
 def give_me_subsets_par_z_6(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
     pts = [(x_,y_,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2)
             for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2)
@@ -149,6 +162,8 @@ def give_me_subsets_par_z_6(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_
     return set.union(*alternation)
 
 
+# give_me_subsets_6 but with the innermost for loop parallelized,
+# and substitutions optimized
 def give_me_subsets_par_z_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
     pts = [(x_,y_,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2)
             for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2)
@@ -157,6 +172,9 @@ def give_me_subsets_par_z_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
 
+
+# give_me_subsets_6 but with the second innermost for loop parallelized,
+# and substitutions optimized
 def give_me_subsets_par_yz_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
     pts = [(x_,y1,y2,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2)
             for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2)
@@ -165,6 +183,8 @@ def give_me_subsets_par_yz_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
 
+# give_me_subsets_6 but with the outermost for loop parallelized,
+# and substitutions optimized
 def give_me_subsets_par_xyz_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
     pts = [(x1,x2,y1,y2,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2)
             for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2)
@@ -173,14 +193,14 @@ def give_me_subsets_par_xyz_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
 
-
-
+# give_me_subsets but with the second innermost for loop parallelized
 def give_me_subsets_par_yz(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
     pts = [(x_,b3,b4,b5,b6,c1_,c2_,c3_) for x_ in range(b1,b2)]
     lst = list(find_subsets_yz([pt for pt in pts]));
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
 
+# give_me_subsets_6 but with the second innermost for loop parallelized
 def give_me_subsets_par_yz_6(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
     pts = [(x_,y1,y2,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for c1_ in range(c1_1,c1_2)
             for c2_ in range(c2_1,c2_2) for c3_ in range(c3_1,c3_2)]
@@ -188,14 +208,13 @@ def give_me_subsets_par_yz_6(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
 
+# give_me_subsets_6 but with the outermost for loop parallelized
 def give_me_subsets_par_xyz_6(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
     pts = [(x1,x2,y1,y2,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for c1_ in range(c1_1,c1_2)
             for c2_ in range(c2_1,c2_2) for c3_ in range(c3_1,c3_2)]
     lst = list(find_subsets_yz([pt for pt in pts]));
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
-
-
 
 @parallel
 def find_subset(x_,y_,z_,c1_,c2_,c3_):
@@ -205,7 +224,6 @@ def find_subset(x_,y_,z_,c1_,c2_,c3_):
         if(vec_nonnegative(vec)):
             subset.add(p[0])
     return frozenset(subset)
-
 
 @parallel
 def find_subsets_z(x_,y_,z1,z2,c1_,c2_,c3_):
