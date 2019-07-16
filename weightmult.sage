@@ -1,69 +1,70 @@
 def init():
     global W,a,P,a1,a2,a3,w1,w2,w3,rho,lam,mu,root_matrix,sub_1,sub_s1,sub_s2,sub_s3
     global sub_1_result,sub_s1_result,sub_s2_result,sub_s3_result
+
     # We are working in the Lie algebra of type A_r
     r = 3
 
-    #Q.<m,n,k,c1,c2,c3> = QQ['m','n', 'k', 'c_1', 'c_2', 'c_3']
-
-    #Q = SR
+    # Initialize symbolic variables
+    # For coefficients of lambda and mu
     var('m n k c1 c2 c3 x y z')
 
-    #R = RootSystem(['A', 3])
-    #space = R.root_lattice()
-    #a = space.simple_roots()
-    #alpha = space.simple_coroots()
-
+    # Initialize Weyl group and root system
     W = WeylGroup(['A', 3], prefix='s')
     a = W.domain().simple_roots()
     P = W.domain().positive_roots()
-    #w = W.domain().fundamental_weights()
 
-    # alpha 1,2,3
+    # Initialize alpha 1, 2, and 3 as column matrices over SR
     a1 = ambient_to_vector(a[1])
     a2 = ambient_to_vector(a[2])
     a3 = ambient_to_vector(a[3])
 
 
-    # omega 1,2,3
-    #w1 = omega(1,r)
-    #w2 = omega(2,r)
-    #w3 = omega(3,r)
+    # Initialize omega 1,2,3 as column matrices over SR
     w1 = (1/4) * (3*a1 + 2*a2 + 1*a3)
     w2 = (1/2) * (1*a1 + 2*a2 + 1*a3)
     w3 = (1/4) * (1*a1 + 2*a2 + 3*a3)
 
-    # rho, mu, lambda
+    # Initialize rho, mu, lambda as column matrices over SR
     rho = ambient_to_vector((1/2) * sum(P))
     lam = m*w1 + n*w2 + k*w3
     mu = c1*w1 + c2*w2 + c3*w3
-    #mu = c1*a1 + c2*a2 + c3*a3
 
     # Matrix where columns are the alpha's
     root_matrix = matrix([ambient_to_list(a[i]) for i in range(1,4)],ring=SR).transpose()
 
-    # Substitutions for integrality conditions
+    # Substitutions of m,n,k in terms of x,y,z,c1,c2,c3 to ensure that alpha coefficients
+    # in partition function input are integers for integral x,y,z
     sub_1 = matrix([[3,2,1],[1,2,1],[1,2,3]],ring=SR).solve_right(vector([4*x+3*c1+2*c2+c3,2*y+c1+2*c2+c3,4*z+c1+2*c2+3*c3]))
     sub_s1 = matrix([[-1,2,1],[1,2,1],[1,2,3]],ring=SR).solve_right(vector([4*x + 3*c1 + 2*c2 + c3, 2*y + c1 + 2*c2 + c3, 4*z + c1 + 2*c2 + 3*c3]))
     sub_s2 = matrix([[3,2,1],[1,0,1],[1,2,3]],ring=SR).solve_right(vector([4*x+3*c1+2*c2+c3,2*y+c1+2*c2+c3,4*z+c1+2*c2+3*c3]))
     sub_s3 = matrix([[3,2,1],[1,2,1],[1,2,-1]],ring=SR).solve_right(vector([4*x+3*c1+2*c2+c3,2*y+c1+2*c2+c3,4*z+c1+2*c2+3*c3]))
 
+    # sigma(lam+rho) - (rho + mu) with integrality substitutions for m,n,k
+    # applied
     sub_1_result = weyl_actions_sub(*sub_1);
     sub_s1_result = weyl_actions_sub(*sub_s1);
     sub_s2_result = weyl_actions_sub(*sub_s2);
     sub_s3_result = weyl_actions_sub(*sub_s3);
 
-#W = WeylGroup(['A', 3], prefix='s')
-#L = W.domain()
-#P = L.positive_roots()
-#a = L.simple_roots().list()
 
-def give_me_subsets(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
+################################################################################
+################################################################################
+# Runs through all points (x_, y_, z_) for
+# * x1 <= x_ < x2
+# * y1 <= y_ < y2
+# * z1 <= z_ < z2.
+# Substitutes x_, y_, z_, c1_, c2_, c3_ into sub_1_result and determines
+# which Weyl group elements yield non-negative alpha coefficients as a result
+# (i.e. which Weyl group elements contribute).
+# Possible contributing subsets of Weyl group elements are then conglomerated
+# into a larger set, which is returned.
+def give_me_subsets(x1, x2, y1, y2, z1, z2, c1_,c2_,c3_):
     alternation = set()
-    for x_ in range(b1,b2):
+    for x_ in range(x1,x2):
         print(x_)
-        for y_ in range(b3,b4):
-            for z_ in range(b5,b6):
+        for y_ in range(y1,y2):
+            for z_ in range(z1,z2):
                 thisone = set()
                 for p in sub_1_result:
                     vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
@@ -72,8 +73,8 @@ def give_me_subsets(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
                 alternation.add(frozenset(thisone))
     return alternation
 
-def give_me_subsets_par(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
-    pts = [(x_,y_,z_,c1_,c2_,c3_) for x_ in range(b1,b2) for y_ in range(b3,b4) for z_ in range(b5,b6)]
+def give_me_subsets_par(x1, x2, y1, y2, z1, z2, c1_,c2_,c3_):
+    pts = [(x_,y_,z_,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2) for z_ in range(z1,z2)]
     lst = list(find_subset([pt for pt in pts]));
     alternation = {j[1] for j in lst}
     return alternation
@@ -148,14 +149,15 @@ def weyl_actions_sub(a,b,c):
 #ef weyl_general(x, y):
 #   return [(s,vector_to_alpha_coords(s.matrix() * x + y)) for s in W]
 
-# Takes ambient space vector and converts to matrix
+# Takes ambient space vector and converts to column matrix over SR
 def ambient_to_list(v):
     return [v[i] for i in range(0,4)]
 
+# Takes vector and converts to a list
 def vector_to_list(v):
     return [v[i] for i in range(0,4)]
 
-
+# Takes ambient space vector and converts to column matrix over SR
 def ambient_to_vector(v):
     return matrix([v[i] for i in range(0,4)],ring=SR).transpose()
 
@@ -169,12 +171,8 @@ def ambient_to_alpha_coords(v):
 def vector_to_alpha_coords(v):
     return root_matrix.solve_right(v)
 
-
-# We wish to find the w's (omegas) #
-# Finds omega_i for the Lie algebra of type A_l
-def omega(i,l):
-    return (l+1-i) / (l+1) * sum([j * a[j] for j in range(1,i)]) + i/(l+1)*sum([(l-j+1)*a[j] for j in range(i,l+1)])
-
+# Reloads this file.
+# Used for convenience in Sage command line.
 def rl():
     load('weightmult.sage')
     init()
