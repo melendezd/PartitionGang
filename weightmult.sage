@@ -1,7 +1,8 @@
 def init():
     global W,a,P,a1,a2,a3,w1,w2,w3,rho,lam,mu,root_matrix,sub_1,sub_s1,sub_s2,sub_s3
     global sub_1_result,sub_s1_result,sub_s2_result,sub_s3_result
-
+    global rows
+    global sub_1_callable
     # We are working in the Lie algebra of type A_r
     r = 3
 
@@ -47,6 +48,40 @@ def init():
     sub_s2_result = weyl_actions_sub(*sub_s2);
     sub_s3_result = weyl_actions_sub(*sub_s3);
 
+    sub_1_callable = [[fast_callable(p[1][i][0], vars=[x,y,z,c1,c2,c3]) for i in range(0,3)] for p in sub_1_result]
+
+
+def computePts():
+    global mats, vecs, pts
+    rows = [[1,0,0,0,0,0],[-1,-1,-1,0,0,-1],[-1,-1,0,0,-1,1],[-1,0,0,-1,1,0],[0,0,0,0,1,0],
+            [-1,-2,-1,-1,0,0],[-1,-1,-1,-1,1,-1],[-1,-1,0,-1,0,1],[0,-1,-1,1,0,-1],
+            [0,-1,0,1,-1,1],[0,0,0,0,0,1],[-1,-1,-1,-1,0,0],[0,-1,-1,1,-1,0],
+            [0,0,-1,0,1,-1]]
+    coeffs = [0,3,2,1,0,4,3,2,2,1,0,3,2,1]
+    mats = []
+    vecs = []
+    for i1 in range(0,len(rows)):
+        for i2 in range(0,i1):
+            for i3 in range(0,i2):
+                for i4 in range(0,i3):
+                    for i5 in range(0,i4):
+                        for i6 in range(0,i5):
+                            M = matrix([rows[i1], rows[i2], rows[i3], rows[i4],
+                                rows[i5], rows[i6]])
+                            if(det(M) == 0):
+                                continue;
+                            mats.append(M)
+                            vecs.append(vector([coeffs[i1], coeffs[i2], coeffs[i3],
+                                coeffs[i4], coeffs[i5], coeffs[i6]]))
+    pts = [mats[i].solve_right(vecs[i]) for i in range(0,len(mats))]
+    for p in pts:
+        p.set_immutable()
+
+
+#W = WeylGroup(['A', 3], prefix='s')
+#L = W.domain()
+#P = L.positive_roots()
+#a = L.simple_roots().list()
 
 ################################################################################
 ################################################################################
@@ -73,8 +108,27 @@ def give_me_subsets(x1, x2, y1, y2, z1, z2, c1_,c2_,c3_):
                 alternation.add(frozenset(thisone))
     return alternation
 
-def give_me_subsets_par(x1, x2, y1, y2, z1, z2, c1_,c2_,c3_):
-    pts = [(x_,y_,z_,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2) for z_ in range(z1,z2)]
+def give_me_subsets_6(b1, b2, b3, b4, b5, b6, c1_1, c1_2, c2_1,c2_2,c3_1,c3_2):
+    alternation = set()
+    for x_ in range(b1,b2):
+        print(x_)
+        for y_ in range(b3,b4):
+            for z_ in range(b5,b6):
+                for c1_ in range(c1_1,c1_2):
+                    for c2_ in range(c2_1,c2_2):
+                        for c3_ in range(c3_1,c3_2):
+                            thisone = set()
+                            for p in sub_1_result:
+                                vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_,
+                                    c2==c2_, c3==c3_])
+                                if(vec_nonnegative(vec)):
+                                    thisone.add(p[0])
+                            alternation.add(frozenset(thisone))
+    return alternation
+
+
+def give_me_subsets_par(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
+    pts = [(x_,y_,z_,c1_,c2_,c3_) for x_ in range(b1,b2) for y_ in range(b3,b4) for z_ in range(b5,b6)]
     lst = list(find_subset([pt for pt in pts]));
     alternation = {j[1] for j in lst}
     return alternation
@@ -86,11 +140,62 @@ def give_me_subsets_par_z(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
 
+def give_me_subsets_par_z_6(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
+    pts = [(x_,y_,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2)
+            for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2)
+            for c3_ in range(c3_1,c3_2)]
+    lst = list(find_subsets_z([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
+
+def give_me_subsets_par_z_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
+    pts = [(x_,y_,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for y_ in range(y1,y2)
+            for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2)
+            for c3_ in range(c3_1,c3_2)]
+    lst = list(find_subsets_z_op([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
+def give_me_subsets_par_yz_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
+    pts = [(x_,y1,y2,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2)
+            for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2)
+            for c3_ in range(c3_1,c3_2)]
+    lst = list(find_subsets_yz_op([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
+def give_me_subsets_par_xyz_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
+    pts = [(x1,x2,y1,y2,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2)
+            for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2)
+            for c3_ in range(c3_1,c3_2)]
+    lst = list(find_subsets_xyz_op([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
+
+
 def give_me_subsets_par_yz(b1, b2, b3, b4, b5, b6, c1_,c2_,c3_):
     pts = [(x_,b3,b4,b5,b6,c1_,c2_,c3_) for x_ in range(b1,b2)]
     lst = list(find_subsets_yz([pt for pt in pts]));
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
+
+def give_me_subsets_par_yz_6(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
+    pts = [(x_,y1,y2,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for c1_ in range(c1_1,c1_2)
+            for c2_ in range(c2_1,c2_2) for c3_ in range(c3_1,c3_2)]
+    lst = list(find_subsets_yz([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
+def give_me_subsets_par_xyz_6(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
+    pts = [(x1,x2,y1,y2,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2) for c1_ in range(c1_1,c1_2)
+            for c2_ in range(c2_1,c2_2) for c3_ in range(c3_1,c3_2)]
+    lst = list(find_subsets_yz([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
+
 
 @parallel
 def find_subset(x_,y_,z_,c1_,c2_,c3_):
@@ -114,6 +219,60 @@ def find_subsets_z(x_,y_,z1,z2,c1_,c2_,c3_):
                 subset.add(p[0])
         theset.add(frozenset(subset))
     return theset
+
+@parallel
+def find_subsets_z_op(x_,y_,z1,z2,c1_,c2_,c3_):
+    theset = set()
+
+    for z_ in range(z1, z2):
+        subset = set()
+        #for p in sub_1_callable:
+        for i in range(0,len(sub_1_callable)):
+            #vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
+            p = sub_1_callable[i]
+            if(p[0](x_,y_,z_,c1_,c2_,c3_) >= 0 and p[1](x_,y_,z_,c1_,c2_,c3_)>=0
+                    and p[2](x_,y_,z_,c1_,c2_,c3_)>=0):
+                subset.add(sub_1_result[i][0])
+        theset.add(frozenset(subset))
+    return theset
+
+@parallel
+def find_subsets_yz_op(x_,y1,y2,z1,z2,c1_,c2_,c3_):
+    theset = set()
+
+    for y_ in range(y1, y2):
+        for z_ in range(z1, z2):
+            subset = set()
+            #for p in sub_1_callable:
+            for i in range(0,len(sub_1_callable)):
+                #vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
+                p = sub_1_callable[i]
+                if(p[0](x_,y_,z_,c1_,c2_,c3_) >= 0 and p[1](x_,y_,z_,c1_,c2_,c3_)>=0
+                        and p[2](x_,y_,z_,c1_,c2_,c3_)>=0):
+                    subset.add(sub_1_result[i][0])
+            theset.add(frozenset(subset))
+    return theset
+
+@parallel
+def find_subsets_xyz_op(x1,x2,y1,y2,z1,z2,c1_,c2_,c3_):
+    theset = set()
+
+    for x_ in range(x1, x2):
+        for y_ in range(y1, y2):
+            for z_ in range(z1, z2):
+                subset = set()
+                #for p in sub_1_callable:
+                for i in range(0,len(sub_1_callable)):
+                    #vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
+                    p = sub_1_callable[i]
+                    if(p[0](x_,y_,z_,c1_,c2_,c3_) >= 0 and p[1](x_,y_,z_,c1_,c2_,c3_)>=0
+                            and p[2](x_,y_,z_,c1_,c2_,c3_)>=0):
+                        subset.add(sub_1_result[i][0])
+                theset.add(frozenset(subset))
+    return theset
+
+
+
 
 @parallel
 def find_subsets_yz(x_,y1,y2,z1,z2,c1_,c2_,c3_):
