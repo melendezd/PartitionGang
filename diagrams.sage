@@ -3,26 +3,77 @@ from sage.plot.plot3d.shapes2 import Line
 load('weightmult.sage')
 init()
 
-def omega_plot():
-    O1 = Line([(0,0,0), tuple(wp1)], arrow_head=True)
-    O2 = Line([(0,0,0), tuple(wp2)], arrow_head=True)
-    O3 = Line([(0,0,0), tuple(wp3)], arrow_head=True)
-    return O1+O2+O3
+def cool_pic():
+    return (omega_plot(dist=10,color='black')
+        + point_plot(dist=10, mu=(0,0,0), sigmas=[e], color='red')
+        + point_plot(dist=10, mu=(0,0,0), sigmas=[s1], color='blue')
+        + point_plot(dist=10, mu=(0,0,0), sigmas=[s2], color='green')
+        + point_plot(dist=10, mu=(0,0,0), sigmas=[s3], color='yellow')
+        + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3], color='brown')
+        )
 
-def point_plot(ran, c1_, c2_, c3_, h, col):
+def omega_plot(dist, color):
+    O1 = Line([(0,0,0), tuple(dist*wp1)], arrow_head=True, color=color)
+    O2 = Line([(0,0,0), tuple(dist*wp2)], arrow_head=True, color=color)
+    O3 = Line([(0,0,0), tuple(dist*wp3)], arrow_head=True, color=color)
+    O1_negative = Line([(0,0,0), tuple(-dist*wp1)], arrow_head=True, color=color)
+    O2_negative = Line([(0,0,0), tuple(-dist*wp2)], arrow_head=True, color=color)
+    O3_negative = Line([(0,0,0), tuple(-dist*wp3)], arrow_head=True, color=color)
+    return O1 + O2 + O3 + O1_negative + O2_negative + O3_negative
+
+def point_plot(dist, mu, sigmas, color):
     # Get the xyz coordinates
-    coords_xyz = [(x_, y_, z_)
-        for x_ in range(*ran) for y_ in range(*ran) for z_ in range(*ran)
-        if all( [sub_1_callable[h][j](x_,y_,z_,c1_,c2_,c3_) >= 0 for j in range(0,3)])]
+    c1_ = mu[0]
+    c2_ = mu[1]
+    c3_ = mu[2]
+    sub1dict = dict(sub_1_result)
+    coords_xyz = [
+            (x_, y_, z_)
+            for x_ in range(-dist, dist) for y_ in range(-dist, dist)
+            for z_ in range(-dist, dist)
+            if all( [
+                sub_1_callable[list(sub1dict.keys()).index(s)][j](x_,y_,z_,c1_,c2_,c3_) >= 0
+                for j in range(0,3) for s in sigmas])
+        ]
 
     # Substitute in m,n,k
-    coords_mnk = [tuple( [sub_1_callable[h][j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]] )
+    coords_mnk = [tuple( [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]] )
         for (x_,y_,z_) in coords_xyz]
 
     # Transform into omega coordinates
     coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
-    points = point3d(coords_mnk_omega, size=25, color=col, opacity=.5)
+    points = point3d(coords_mnk_omega, size=25, color=color, opacity=.5)
     return points
+
+def lattice_plot(dist):
+    lines_xy = [
+        Line( [ tuple(x_*wp1 + y_*wp2 - dist*wp3),
+                tuple(x_*wp1 + y_*wp2 + dist*wp3) ],
+              color=(.7,.7,.7),
+              opacity=.1,
+              thickness=.2)
+        for x_ in range(-dist, dist)
+        for y_ in range(-dist, dist)
+    ]
+    lines_xz = [
+        Line( [ tuple(x_*wp1 - dist*wp2 + z_*wp3),
+                tuple(x_*wp1 + dist*wp2 + z_*wp3) ],
+              color=(.7,.7,.7),
+              opacity=.1,
+              thickness=.2)
+        for x_ in range(-dist, dist)
+        for z_ in range(-dist, dist)
+    ]
+    lines_yz = [
+        Line( [ tuple(-dist*wp1 + y_*wp2 + z_*wp3),
+                tuple(dist*wp1 + y_*wp2 + z_*wp3) ],
+              color=(.7,.7,.7),
+              opacity=.1,
+              thickness=.2)
+        for y_ in range(-dist, dist)
+        for z_ in range(-dist, dist)
+    ]
+    return sum(lines_xy) + sum(lines_xz)
 
 def init_diagrams():
     # Create omega column matrices over Q
