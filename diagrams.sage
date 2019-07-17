@@ -24,7 +24,6 @@ def point_plot(ran, c1_, c2_, c3_, h, col):
     points = point3d(coords_mnk_omega, size=25, color=col, opacity=.5)
     return points
 
-
 def init_diagrams():
     # Create omega column matrices over Q
     global w1_, w2_, w3_
