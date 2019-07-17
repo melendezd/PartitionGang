@@ -1,52 +1,3 @@
-<<<<<<< HEAD
-    # We are working in the Lie algebra of type A_r
-r = 3
-
-#Q.<m,n,k,c1,c2,c3> = QQ['m','n', 'k', 'c_1', 'c_2', 'c_3']
-#Q = SR
-var('m n k c1 c2 c3')
-
-def ambient_to_vector(v):
-    return matrix([v[i] for i in range(0,4)],ring=SR).transpose()
-
-
-#R = RootSystem(['A', 3])
-#space = R.root_lattice()
-#a = space.simple_roots()
-#alpha = space.simple_coroots()
-
-W = WeylGroup(['A', 3], prefix='s')
-alpha = W.domain().simple_roots()
-#w = W.domain().fundamental_weights()
-
-# alpha 1,2,3
-a1 = ambient_to_vector(a[1])
-a2 = ambient_to_vector(a[2])
-a3 = ambient_to_vector(a[3])
-
-# omega 1,2,3
-#w1 = omega(1,r)
-#w2 = omega(2,r)
-#w3 = omega(3,r)
-w1 = (1/4) * (3*a1 + 2*a2 + 1*a3)
-w2 = (1/2) * (1*a1 + 2*a2 + 1*a3)
-w3 = (1/4) * (1*a1 + 2*a2 + 3*a3)
-
-# rho, mu, lambda
-rho = ambient_to_vector((1/2) * sum(P))
-lam = m*w1 + n*w2 + k*w3
-mu = c1*w1 + c2*w2 + c3*w3
-#mu = c1*a1 + c2*a2 + c3*a3
-
-
-# Matrix where columns are the alpha's
-root_matrix = matrix([vector_to_list(a[i]) for i in range(1,4)],ring=SR).transpose()
-
-#W = WeylGroup(['A', 3], prefix='s')
-#L = W.domain()
-#P = L.positive_roots()
-#a = L.simple_roots().list()
-=======
 def init():
     # We are working in the Lie algebra of type A_r
     r = 3
@@ -364,7 +315,6 @@ def doit(o):
 
 def vec_nonnegative(v):
     return all([b >= 0 for b in v]);
->>>>>>> 08cb1fd8bb23607fca3b88ea76d941fc93861218
 
 # Gives us everything
 def weyl_actions():
@@ -383,8 +333,6 @@ def weyl_actions_sub(a,b,c):
 def ambient_to_list(v):
     return [v[i] for i in range(0,4)]
 
-<<<<<<< HEAD
-=======
 # Takes vector and converts to a list
 def vector_to_list(v):
     return [v[i] for i in range(0,4)]
@@ -393,7 +341,6 @@ def vector_to_list(v):
 def ambient_to_vector(v):
     return matrix([v[i] for i in range(0,4)],ring=SR).transpose()
 
->>>>>>> 08cb1fd8bb23607fca3b88ea76d941fc93861218
 
 # Take R4 vector and gives coordinates in terms of alpha's
 # v = c1 * a1 + c2 * a2 + c3 * a3
