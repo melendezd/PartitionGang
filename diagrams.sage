@@ -3,13 +3,19 @@ from sage.plot.plot3d.shapes2 import Line
 load('weightmult.sage')
 init()
 
+
+def alternation_diagram(sigmas, color):
+    return (omega_plot(dist=15,color='black')
+        + point_plot(dist=10, mu=(0,0,0), sigmas=sigmas, color=color)
+        )
+
 def cool_pic():
-    return (omega_plot(dist=10,color='black')
+    return (omega_plot(dist=15,color='black')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[e], color='red')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s1], color='blue')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s2], color='green')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s3], color='yellow')
-        + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3], color='brown')
+        + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3], color='purple')
         )
 
 def omega_plot(dist, color):
@@ -21,7 +27,7 @@ def omega_plot(dist, color):
     O3_negative = Line([(0,0,0), tuple(-dist*wp3)], arrow_head=True, color=color)
     return O1 + O2 + O3 + O1_negative + O2_negative + O3_negative
 
-def point_plot(dist, mu, sigmas, color):
+def point_plot(dist, mu, sigmas, color, size=10):
     # Get the xyz coordinates
     c1_ = mu[0]
     c2_ = mu[1]
@@ -42,7 +48,7 @@ def point_plot(dist, mu, sigmas, color):
 
     # Transform into omega coordinates
     coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
-    points = point3d(coords_mnk_omega, size=25, color=color, opacity=.5)
+    points = point3d(coords_mnk_omega, size, color=color, opacity=.5)
     return points
 
 def lattice_plot(dist):
