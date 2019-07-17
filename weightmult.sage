@@ -7,10 +7,12 @@ def init():
     var('m n k c1 c2 c3 x y z')
 
     # Initialize Weyl group and root system
-    global W,a,p
+    global W,a,p,s1,s2,s3,e
     W = WeylGroup(['A', 3], prefix='s')
     a = W.domain().simple_roots()
     P = W.domain().positive_roots()
+    [s1,s2,s3] = W.simple_reflections()
+    e = s1*s1
 
     # Initialize alpha 1, 2, and 3 as column matrices over SR
     global a1,a2,a3
