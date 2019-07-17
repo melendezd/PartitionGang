@@ -351,6 +351,7 @@ def vector_to_alpha_coords(v):
 # Reloads this file.
 # Used for convenience in Sage command line.
 def rl():
+    print('Reloading weightmult.sage...')
     load('weightmult.sage')
     init()
 
