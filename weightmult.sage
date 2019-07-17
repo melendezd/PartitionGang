@@ -56,10 +56,12 @@ def init():
     var('m n k c1 c2 c3 x y z')
 
     # Initialize Weyl group and root system
-    global W,a,p
+    global W,a,p,s1,s2,s3,e
     W = WeylGroup(['A', 3], prefix='s')
     a = W.domain().simple_roots()
     P = W.domain().positive_roots()
+    [s1,s2,s3] = W.simple_reflections()
+    e = s1*s1
 
     # Initialize alpha 1, 2, and 3 as column matrices over SR
     global a1,a2,a3
@@ -99,8 +101,9 @@ def init():
     sub_s2_result = weyl_actions_sub(*sub_s2);
     sub_s3_result = weyl_actions_sub(*sub_s3);
 
-    global sub_1_callable
+    global sub_1_callable, xyz_to_mnk
     sub_1_callable = [[fast_callable(p[1][i][0], vars=[x,y,z,c1,c2,c3]) for i in range(0,3)] for p in sub_1_result]
+    xyz_to_mnk = [fast_callable(X, vars=[x,y,z,c1,c2,c3]) for X in sub_1]
 
 
 # Computes the points of intersection between the hyperplanes determined
@@ -404,6 +407,7 @@ def vector_to_alpha_coords(v):
 # Reloads this file.
 # Used for convenience in Sage command line.
 def rl():
+    print('Reloading weightmult.sage...')
     load('weightmult.sage')
     init()
 
