@@ -175,7 +175,6 @@ def cool_pic2():
         )
 
 #the following gives the shape of the empty space of all the 24 weyl elements
-newmu=(6,3,2)
 def cool_pic3(mu_a, dist=10, color='red', size=25):
     return (omega_plot(dist=dist,color='black')
         + center_plot(dist=dist,
