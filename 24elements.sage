@@ -147,7 +147,7 @@ def x():
     )
 
 
-def cool_pic():
+def cool_pic2():
     return (omega_plot(dist=10,color='black')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[e], color='red')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s1], color='blue')
