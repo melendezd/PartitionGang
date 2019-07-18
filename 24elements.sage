@@ -144,6 +144,7 @@ def x():
     + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3*s1*s2*s1], color='lightgrey'), frame=False
     )
 
+#the following give the outer shape of all the 24 weyl elements
 mu_= (6,-3,0)
 def cool_pic2():
     return show(omega_plot(dist=10,color='black')
@@ -173,6 +174,7 @@ def cool_pic2():
         + point_plot(dist=10, mu=mu_, sigmas=[s1*s2*s3*s1*s2*s1], color='lightgrey'), frame=False
         )
 
+#the following gives the shape of the empty space of all the 24 weyl elements
 newmu=(6,3,2)
 def cool_pic3(mu_a, dist=10, color='red', size=25):
     return (omega_plot(dist=dist,color='black')
