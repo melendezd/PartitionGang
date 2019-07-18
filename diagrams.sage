@@ -44,10 +44,13 @@ def omega_plot(dist, color):
     O1 = Line([(0,0,0), tuple(dist*wp1)], arrow_head=True, color=color)
     O2 = Line([(0,0,0), tuple(dist*wp2)], arrow_head=True, color=color)
     O3 = Line([(0,0,0), tuple(dist*wp3)], arrow_head=True, color=color)
+    O1_label = text3d("w_1", tuple((dist+1.3)*wp1), color=(0,0,0))
+    O2_label = text3d("w_2", tuple((dist+1.3)*wp2), color=(0,0,0))
+    O3_label = text3d("w_3", tuple((dist+1.3)*wp3), color=(0,0,0))
     O1_negative = Line([(0,0,0), tuple(-dist*wp1)], arrow_head=True, color=color)
     O2_negative = Line([(0,0,0), tuple(-dist*wp2)], arrow_head=True, color=color)
     O3_negative = Line([(0,0,0), tuple(-dist*wp3)], arrow_head=True, color=color)
-    return O1 + O2 + O3 + O1_negative + O2_negative + O3_negative
+    return O1 + O2 + O3 + O1_negative + O2_negative + O3_negative + O1_label + O2_label + O3_label
 
 def point_plot(dist, mu, sigmas, color, size=25):
     # Get the xyz coordinates
