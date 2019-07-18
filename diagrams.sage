@@ -3,6 +3,8 @@ from sage.plot.plot3d.shapes2 import Line
 load('weightmult.sage')
 init()
 
+weyl_group = list(W)
+
 
 def alternation_diagram(sigmas, color):
     return (omega_plot(dist=15,color='black')
@@ -69,6 +71,33 @@ def point_plot(dist, mu, sigmas, color, size=10):
     coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
     points = point3d(coords_mnk_omega, size, color=color, opacity=.5)
     return points
+
+def point_plot_reversed(dist, mu, sigmas, color, size=10):
+    # Get the xyz coordinates
+    c1_ = mu[0]
+    c2_ = mu[1]
+    c3_ = mu[2]
+    sub1dict = dict(sub_1_result)
+    coords_xyz = [
+            (x_, y_, z_)
+            for x_ in range(-dist, dist) for y_ in range(-dist, dist)
+            for z_ in range(-dist, dist)
+            if all( [
+                sub_1_callable[list(sub1dict.keys()).index(s)][j](x_,y_,z_,c1_,c2_,c3_) < 0
+                for j in range(0,3) for s in sigmas])
+        ]
+
+    # Substitute in m,n,k
+    coords_mnk = [tuple( [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]] )
+        for (x_,y_,z_) in coords_xyz]
+
+    # Transform into omega coordinates
+    coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
+    points = point3d(coords_mnk_omega, size, color=color, opacity=.5)
+    return points
+
+def center_plot(dist, mu, color, size=25):
+    return point_plot_reversed(dist, mu, weyl_group, color, size)
 
 def lattice_plot(dist):
     lines_xy = [
