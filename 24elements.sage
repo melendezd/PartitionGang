@@ -175,15 +175,8 @@ def cool_pic2():
         )
 
 newmu=(6,3,2)
-<<<<<<< HEAD
 def cool_pic3(mu_a, dist=10, color='red', size=25):
     return (omega_plot(dist=dist,color='black')
         + center_plot(dist=dist,
         mu=(2*mu_a[0]-mu_a[1], -mu_a[0] + 2*mu_a[1] - mu_a[2],
         -mu_a[1] + 2*mu_a[2]), color=color, size=size))
-=======
-def cool_pic3(alpha):
-    return ( show(omega_plot(dist=30,color='black')
-        + center_plot(dist=30, mu=newmu,  color='red'), frame=False)
-        )
->>>>>>> b0c096b821b1ec85a22cdcc129e4459f346c46e5
