@@ -27,7 +27,7 @@ def d():
     )
 
 #e=sigmas=[s1*s2]
-def e():
+def ee():
     return (omega_plot(dist=10,color='black')
     + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2], color='orange')
     )
