@@ -186,6 +186,18 @@ def give_me_subsets_par_yz_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1
     alternation = [j[1] for j in lst]
     return set.union(*alternation)
 
+# give_me_subsets_6 but with the second innermost for loop parallelized,
+# and substitutions optimized,
+# but only points where lambda is a nonnegative integer linear combination of
+# the fundamental weights
+def give_me_subsets_lam_par_yz_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
+    pts = [(x_,y1,y2,z1,z2,c1_,c2_,c3_) for x_ in range(x1,x2)
+            for c1_ in range(c1_1,c1_2) for c2_ in range(c2_1,c2_2)
+            for c3_ in range(c3_1,c3_2)]
+    lst = list(find_subsets_lam_yz_op([pt for pt in pts]));
+    alternation = [j[1] for j in lst]
+    return set.union(*alternation)
+
 # give_me_subsets_6 but with the outermost for loop parallelized,
 # and substitutions optimized
 def give_me_subsets_par_xyz_6_op(x1, x2, y1, y2, z1, z2, c1_1,c1_2,c2_1,c2_2,c3_1,c3_2):
@@ -269,6 +281,25 @@ def find_subsets_yz_op(x_,y1,y2,z1,z2,c1_,c2_,c3_):
                 #vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
                 p = sub_1_callable[i]
                 if(p[0](x_,y_,z_,c1_,c2_,c3_) >= 0 and p[1](x_,y_,z_,c1_,c2_,c3_)>=0
+                        and p[2](x_,y_,z_,c1_,c2_,c3_)>=0):
+                    subset.add(sub_1_result[i][0])
+            theset.add(frozenset(subset))
+    return theset
+
+@parallel
+def find_subsets_lam_yz_op(x_,y1,y2,z1,z2,c1_,c2_,c3_):
+    theset = set()
+
+    for y_ in range(y1, y2):
+        for z_ in range(z1, z2):
+            subset = set()
+            #for p in sub_1_callable:
+            for i in range(0,len(sub_1_callable)):
+                #vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
+                p = sub_1_callable[i]
+                mnk = [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in range(0,3)];
+                if(mnk[0] >= 0 and mnk[1] >= 0 and mnk[2] >= 0 and
+                p[0](x_,y_,z_,c1_,c2_,c3_) >= 0 and p[1](x_,y_,z_,c1_,c2_,c3_)>=0
                         and p[2](x_,y_,z_,c1_,c2_,c3_)>=0):
                     subset.add(sub_1_result[i][0])
             theset.add(frozenset(subset))
