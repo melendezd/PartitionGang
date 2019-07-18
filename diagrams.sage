@@ -9,6 +9,7 @@ def alternation_diagram(sigmas, color):
         + point_plot(dist=10, mu=(0,0,0), sigmas=sigmas, color=color)
         )
 
+
 def cool_pic():
     return (omega_plot(dist=10,color='black')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[e], color='red')
@@ -46,7 +47,7 @@ def omega_plot(dist, color):
     O3_negative = Line([(0,0,0), tuple(-dist*wp3)], arrow_head=True, color=color)
     return O1 + O2 + O3 + O1_negative + O2_negative + O3_negative
 
-def point_plot(dist, mu, sigmas, color, size=10):
+def point_plot(dist, mu, sigmas, color, size=25):
     # Get the xyz coordinates
     c1_ = mu[0]
     c2_ = mu[1]
