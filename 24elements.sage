@@ -174,3 +174,9 @@ def cool_pic2():
         + point_plot(dist=10, mu=mu_, sigmas=[s2*s3*s1*s2*s1], color='dimgrey')
         + point_plot(dist=10, mu=mu_, sigmas=[s1*s2*s3*s1*s2*s1], color='lightgrey')
         )
+
+newmu=(9,0,1)
+def cool_pic3():
+    return (omega_plot(dist=30,color='black')
+        + center_plot(dist=30, mu=newmu,  color='red')
+        )
