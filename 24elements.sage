@@ -159,7 +159,7 @@ def cool_pic2():
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s2*s3], color='cadetblue')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s3*s2], color='cyan')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3], color='pink')
-        + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s1], color='limegree')
+        + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s1], color='limegreen')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s3*s2*s1], color='fuchsia')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s3*s1*s2], color='gold')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s2*s3*s1], color='greenyellow')
