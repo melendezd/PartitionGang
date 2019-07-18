@@ -4,9 +4,8 @@ load('diagrams.sage')
 #THIS IS WHERE THE 24 ELEMENTS START
 # a=sigmas=[e]
 def a():
-    return (omega_plot(dist=10,color='black')
-        + point_plot(dist=10, mu=(0,0,0), sigmas=[e], color='red')
-        )
+    return show(omega_plot(dist=10,color='black')
+    + point_plot(dist=10, mu=(0,0,0), sigmas=[e], color='red'), frame=False)
 
 #b=sigmas=[s1]
 def b():
@@ -176,7 +175,7 @@ def cool_pic2():
         )
 
 newmu=(6,3,2)
-def cool_pic3():
-    return (omega_plot(dist=30,color='black')
-        + center_plot(dist=30, mu=newmu,  color='red')
+def cool_pic3(alpha):
+    return ( show(omega_plot(dist=30,color='black')
+        + center_plot(dist=30, mu=newmu,  color='red'), frame=False)
         )
