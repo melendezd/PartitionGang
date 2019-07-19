@@ -57,6 +57,32 @@ def init():
     xyz_to_mnk = [fast_callable(X, vars=[x,y,z,c1,c2,c3]) for X in sub_1]
 
 
+def getPolytopePts3d(mu=(0,0,0)):
+    actions = weyl_actions()
+    rows = [
+        [ex[1][j][0].coefficient(m,1), ex[1][j][0].coefficient(n,1),ex[1][j][1].coefficient(k,0)]
+        for ex in actions for j in range(0,3)
+    ]
+
+    bs = [
+        -ex[i](0,0,0,*mu) for i in range(0,3) for ex in sub_1_callable
+    ]
+
+    verts = []
+
+    for i1 in range(0,len(rows)):
+        for i2 in range(0,i1):
+            for i3 in range(0,i2):
+                M = matrix([rows[i1], rows[i2], rows[i3]])
+                if(det(M) != 0):
+                    pt = M.solve_right(vector([bs[0],bs[1],bs[2]]))
+                    (m_,n_,k_) = pt[0]
+                    if(all([act[1][j].substitute(m==m_,n==n_,k==k_,c1==mu[0],c2==mu[1],c3==mu[2]) <= 0 for act in actions for j in range(0,2)])):
+                        verts.add(pt)
+
+    return verts
+
+
 # Computes the points of intersection between the hyperplanes determined
 # by each Weyl group element (6-dimensional in x,y,z,c1,c2,c3)
 def computePts():

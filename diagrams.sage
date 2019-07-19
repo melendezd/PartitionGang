@@ -8,8 +8,7 @@ weyl_group = list(W)
 
 def alternation_diagram(sigmas, color):
     return (omega_plot(dist=15,color='black')
-        + point_plot(dist=10, mu=(0,0,0), sigmas=sigmas, color=color)
-        )
+        + point_plot(dist=10, mu=(0,0,0), sigmas=sigmas, color=color))
 
 
 def cool_pic():
@@ -37,8 +36,7 @@ def cool_pic():
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3*s2*s1], color='tan')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3*s1*s2], color='tomato')
         + point_plot(dist=10, mu=(0,0,0), sigmas=[s2*s3*s1*s2*s1], color='yellowgreen')
-        + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3*s1*s2*s1], color='violet')
-        )
+        + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3*s1*s2*s1], color='violet'))
 
 def omega_plot(dist, color):
     O1 = Line([(0,0,0), tuple(dist*wp1)], arrow_head=True, color=color)
@@ -76,6 +74,35 @@ def point_plot(dist, mu, sigmas, color, size=25):
     points = point3d(coords_mnk_omega, size, color=color, opacity=.5)
     return points
 
+
+def point_plot_fade(dist, mu, sigmas, color, size=25):
+    # Get the xyz coordinates
+    col=color
+    c1_ = mu[0]
+    c2_ = mu[1]
+    c3_ = mu[2]
+    sub1dict = dict(sub_1_result)
+    coords_xyz = [
+            (x_, y_, z_)
+            for x_ in range(-dist, dist) for y_ in range(-dist, dist)
+            for z_ in range(-dist, dist)
+            if all( [
+                sub_1_callable[list(sub1dict.keys()).index(s)][j](x_,y_,z_,c1_,c2_,c3_) >= 0
+                for j in range(0,3) for s in sigmas])
+        ]
+
+    # Substitute in m,n,k
+    coords_mnk = [tuple( [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]] )
+        for (x_,y_,z_) in coords_xyz]
+
+    # Transform into omega coordinates
+    coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
+    max_z = max([pt[2] for pt in coords_mnk_omega])
+    min_z = min([pt[2] for pt in coords_mnk_omega])
+    range_z = min_z-max_z
+    points = [point3d(pt, size, color=tuple(col[j] * (max_z-pt[2]+0.1)/range_z for j in range(0,3)), opacity=.5) for pt in coords_mnk_omega]
+    return sum(points)
+
 def point_plot_reversed(dist, mu, sigmas, color, size=10):
     # Get the xyz coordinates
     c1_ = mu[0]
@@ -100,8 +127,41 @@ def point_plot_reversed(dist, mu, sigmas, color, size=10):
     points = point3d(coords_mnk_omega, size, color=color, opacity=.5)
     return points
 
+def point_plot_reversed_polytope(dist, mu, sigmas, color, size=10):
+    # Get the xyz coordinates
+    c1_ = mu[0]
+    c2_ = mu[1]
+    c3_ = mu[2]
+    sub1dict = dict(sub_1_result)
+    coords_xyz = [
+            (x_, y_, z_)
+            for x_ in range(-dist, dist) for y_ in range(-dist, dist)
+            for z_ in range(-dist, dist)
+            if any( [
+                sub_1_callable[list(sub1dict.keys()).index(s)][j](x_,y_,z_,c1_,c2_,c3_) == 0
+                for j in range(0,3) for s in sigmas])
+        ]
+
+    # Substitute in m,n,k
+    coords_mnk = [tuple( [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]] )
+        for (x_,y_,z_) in coords_xyz]
+
+    # Transform into omega coordinates
+    coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
+    coords_mnk_omega_rdf = [tuple(RDF(j) for j in i) for i in coords_mnk_omega]
+    #points = point3d(coords_mnk_omega, size, color=color, opacity=.5)
+    polytope = Polyhedron(vertices=coords_mnk_omega_rdf)
+    return plot(polytope)
+
 def center_plot(dist, mu, color, size=25):
     return point_plot_reversed(dist, mu, weyl_group, color, size)
+
+def center_polytope_plot(dist, mu, color, size=25):
+    return point_plot_reversed_polytope(dist, mu, weyl_group, color, size)
+
+#def center_polytope_verts(mu, dist=10):
+#    return (omega_plot(dist=dist, color='black')
+#        + )
 
 def lattice_plot(dist):
     lines_xy = [
