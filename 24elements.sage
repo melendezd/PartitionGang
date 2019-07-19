@@ -5,11 +5,7 @@ load('diagrams.sage')
 # a=sigmas=[e]
 def a():
     return show(omega_plot(dist=20,color='black')
-<<<<<<< HEAD
-    + point_plot_fade(dist=10, mu=(0,0,0), sigmas=[e], color=(1,0,0),size=10), frame=False)
-=======
     + point_plot_fade(dist=10, mu=(0,0,0), sigmas=[e], color='red'), frame=False)
->>>>>>> 8ba43744a43d66eaa12284ee0c1213bfb81858ba
 
 #b=sigmas=[s1]
 def b():
