@@ -75,7 +75,7 @@ def point_plot(dist, mu, sigmas, color, size=15):
     return points
 
 
-def point_plot_fade(dist, mu, sigmas, color, size=25):
+def point_plot_fade(dist, mu, sigmas, color, size=15):
     # Get the xyz coordinates
     if(isinstance(color,basestring)):
         col = colors[color]
