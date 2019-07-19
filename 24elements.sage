@@ -5,7 +5,7 @@ load('diagrams.sage')
 # a=sigmas=[e]
 def a():
     return show(omega_plot(dist=20,color='black')
-    + point_plot(dist=10, mu=(0,0,0), sigmas=[e], color='red'), frame=False)
+    + point_plot_fade(dist=10, mu=(0,0,0), sigmas=[e], color=(1,0,0),size=10), frame=False)
 
 #b=sigmas=[s1]
 def b():
@@ -139,7 +139,7 @@ def w():
     )
 
 #x=sigmas=[s1*s2*s3*s1*s2*s1]
-def x():
+def xx():
     return show(omega_plot(dist=20,color='black')
     + point_plot(dist=10, mu=(0,0,0), sigmas=[s1*s2*s3*s1*s2*s1], color='lightgrey'), frame=False
     )
@@ -178,5 +178,11 @@ def cool_pic2():
 def cool_pic3(mu_a, dist=20, color='red', size=25):
     return (omega_plot(dist=dist,color='black')
         + center_plot(dist=dist,
+        mu=(2*mu_a[0]-mu_a[1], -mu_a[0] + 2*mu_a[1] - mu_a[2],
+        -mu_a[1] + 2*mu_a[2]), color=color, size=size))
+
+def center_polytope(mu_a, dist=20, color='red', size=25):
+    return (omega_plot(dist=dist,color='black')
+        + center_polytope_plot(dist=dist,
         mu=(2*mu_a[0]-mu_a[1], -mu_a[0] + 2*mu_a[1] - mu_a[2],
         -mu_a[1] + 2*mu_a[2]), color=color, size=size))
