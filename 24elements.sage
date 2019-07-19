@@ -21,7 +21,7 @@ def diagram_s2():
 #d=sigmas=[s3]
 def diagram_s3():
     return show(omega_plot(dist=20,color='black')
-    + point_plot_fade(dist=10, mu=(0,0,0), sigmas=[s3], color='yellow'), frame=False
+    + point_plot_fade(dist=10, mu=(0,0,0), sigmas=[s3], color='green'), frame=False
     )
 
 #e=sigmas=[s1*s2]
