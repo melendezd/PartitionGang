@@ -52,7 +52,7 @@ def omega_plot(dist, color):
     O3_negative = Line([(0,0,0), tuple(-dist*wp3)], arrow_head=True, color=color)
     return O1 + O2 + O3 + O1_negative + O2_negative + O3_negative + O1_label + O2_label + O3_label
 
-def point_plot(dist, mu, sigmas, color, size=25):
+def point_plot(dist, mu, sigmas, color, size=15):
     # Get the xyz coordinates
     c1_ = mu[0]
     c2_ = mu[1]
