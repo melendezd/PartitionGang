@@ -52,34 +52,93 @@ def init():
     sub_s2_result = weyl_actions_sub(*sub_s2);
     sub_s3_result = weyl_actions_sub(*sub_s3);
 
-    global sub_1_callable, xyz_to_mnk
+    global sub_1_callable, xyz_to_mnk, weyl_action_callable
     sub_1_callable = [[fast_callable(p[1][i][0], vars=[x,y,z,c1,c2,c3]) for i in range(0,3)] for p in sub_1_result]
-    xyz_to_mnk = [fast_callable(X, vars=[x,y,z,c1,c2,c3]) for X in sub_1]
+    weyl_action_callable = [[fast_callable(p[1][i][0], vars=[m,n,k,c1,c2,c3]) for i in range(0,3)] for p in weyl_actions()]
 
+    xyz_to_mnk = [fast_callable(X, vars=[x,y,z,c1,c2,c3]) for X in sub_1]
 
 def getPolytopePts3d(mu=(0,0,0)):
     actions = weyl_actions()
     rows = [
-        [ex[1][j][0].coefficient(m,1), ex[1][j][0].coefficient(n,1),ex[1][j][1].coefficient(k,0)]
+        [ex[1][j][0].coefficient(m,1), ex[1][j][0].coefficient(n,1),ex[1][j][0].coefficient(k,1)]
         for ex in actions for j in range(0,3)
     ]
 
     bs = [
-        -ex[i](0,0,0,*mu) for i in range(0,3) for ex in sub_1_callable
+        -fun[i](0,0,0,*mu) for fun in sub_1_callable for i in range(0,3)
     ]
 
-    verts = []
+    verts = set()
 
     for i1 in range(0,len(rows)):
         for i2 in range(0,i1):
             for i3 in range(0,i2):
                 M = matrix([rows[i1], rows[i2], rows[i3]])
                 if(det(M) != 0):
-                    pt = M.solve_right(vector([bs[0],bs[1],bs[2]]))
-                    (m_,n_,k_) = pt[0]
-                    if(all([act[1][j].substitute(m==m_,n==n_,k==k_,c1==mu[0],c2==mu[1],c3==mu[2]) <= 0 for act in actions for j in range(0,2)])):
+                    pt = M.solve_right(vector([bs[i1],bs[i2],bs[i3]]))
+                    (m_,n_,k_) = pt
+                    #if(all([act[1][j][0].substitute(m==m_,n==n_,k==k_,c1==mu[0],c2==mu[1],c3==mu[2]) <= 0 for act in actions for j in range(0,2)])):
+                    if(all([fun[j](m_,n_,k_,*mu) <= 0 for fun in weyl_action_callable for j in range(0,2)])):
+                        pt.set_immutable()
                         verts.add(pt)
 
+    return verts
+
+def getPolytope3d(mu=(0,0,0)):
+    actions = weyl_actions()
+    rows = [
+        [-ex[1][j][0].coefficient(m,1), -ex[1][j][0].coefficient(n,1), -ex[1][j][0].coefficient(k,1)]
+        for ex in actions for j in range(0,3)
+    ]
+
+    bs = [
+        -fun[i](0,0,0,*mu) for fun in weyl_action_callable for i in range(0,3)
+    ]
+
+    verts = set()
+
+    ieqs = [[RDF(bs[i]), RDF(rows[i][0]), RDF(rows[i][1]), RDF(rows[i][2])]
+        for i in range(0,len(rows))]
+
+    return Polyhedron(ieqs=ieqs)
+
+def getPolytopePts3d_parallel(mu=(0,0,0)):
+    actions = weyl_actions()
+    rows = [
+        [ex[1][j][0].coefficient(m,1), ex[1][j][0].coefficient(n,1),ex[1][j][0].coefficient(k,1)]
+        for ex in actions for j in range(0,3)
+    ]
+
+    bs = [
+        -fun[i](0,0,0,*mu) for fun in sub_1_callable for i in range(0,3)
+    ]
+
+    verts = set()
+
+    ilist = [(i1,i2) for i1 in range(0,len(rows)) for i2 in range(0,i1)]
+    #for i1 in range(0,len(rows)):
+    #    for i2 in range(0,i1):
+    #        intermediate = getPolytopePts3d_parallel_helper(mu,rows,bs,i1,i2,0,i2)
+    #        verts = verts.union(intermediate)
+    sets = getPolytopePts3d_parallel_helper([(mu, rows, bs, i1, i2, 0, i2) for (i1,i2) in ilist])
+    print(list(sets))
+    for S in sets:
+        verts = verts.union(S)
+    return verts
+
+@parallel
+def getPolytopePts3d_parallel_helper(mu, rows, bs, i1, i2, i3_1, i3_2):
+    verts = set()
+    for i4 in range(i3_1,i3_2):
+        M = matrix([rows[i1], rows[i2], rows[i4]])
+        if(det(M) != 0):
+            pt = M.solve_right(vector([bs[i1],bs[i2],bs[i4]]))
+            (m_,n_,k_) = pt
+            #if(all([act[1][j][0].substitute(m==m_,n==n_,k==k_,c1==mu[0],c2==mu[1],c3==mu[2]) <= 0 for act in actions for j in range(0,2)])):
+            if(all([fun[j](m_,n_,k_,*mu) <= 0 for fun in weyl_action_callable for j in range(0,2)])):
+                pt.set_immutable()
+                verts.add(pt)
     return verts
 
 
