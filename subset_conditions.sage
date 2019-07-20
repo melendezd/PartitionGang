@@ -15,19 +15,6 @@ pqr = p + q + r
 
 alts = load('alts_mu_positive')
 
-everything_zero = [var==0 for var in pqr]
-
-def has_constant(expr):
-    return Integer(expr.substitute(everything_zero)) != 0
-
-def is_alone(expr, var):
-    coeff = expr.coefficient(var,1)
-    return coeff.substitute(everything_zero) == coeff
-
-def should_be_false(expr, var):
-    coeff = expr.coefficient(var,1)
-    return has_constant(coeff)
-
 positive_conds= {
   e:{ P:1, Q:1, R:1 },
   s1*s2*s1:{ P:3, Q:4, R:1 },
@@ -70,17 +57,56 @@ all_conds = {
   s1*s2*s3*s1*s2:{ P:2, Q:2, R:3 }
 }
 
+def find_conditions(alt, conds):
+    (true_, false_) = get_general_formula(alt, conds)
+
+    # First pass: Remove redundancies with nonnegative assumptinos
+    for var in true_:
+        for s in false_:
+            if var in s:
+                s.remove(var)
+
+    # Get max length of false set
+    max_length = max([len(s) for s in false_])
+
+    '''
+    Remove duplicates until 'removing duplicates' does nothing,
+    i.e. until there are no more duplicates
+    '''
+    prev_false = []
+    while(false_ != prev_false):
+        prev_false = false_[:]
+        for size in range(1,max_length+1):
+            for f in false_:
+                if len(f) == size:
+                    for suspect in false_:
+                        if(f != suspect and f.issubset(suspect)):
+                            false_.remove(suspect)
+                            #false_[j] = false_[j].difference(f)
+
+    return (true_,false_)
+
+def get_general_formula(alt, conds):
+    true_ = set()
+    false_ = []
+    for sigma in conds.keys():
+        term = {p[conds[sigma][P]-1] , q[conds[sigma][Q]-1] , r[conds[sigma][R]-1]}
+        if(sigma in alt):
+            for t in term:
+                true_.add(t)
+        else:
+            false_.append(term)
+    return (true_,false_)
+
+
+def remove_duplicates(L):
+    result = []
+    for l in L:
+        if l not in result:
+            result.append(l)
+    return result
 
 # Get the big formula for everything
-def get_polynomial(alt, conds):
-    formula = 0
-    for sigma in conds.keys():
-        term = p[conds[sigma][P]-1] * q[conds[sigma][Q]-1] * r[conds[sigma][R]-1]
-        if(sigma in alt):
-            formula += term
-        else:
-            formula -= term
-    return formula
 
 def get_formula(alt):
     f = propcalc.formula('x')
@@ -92,90 +118,3 @@ def get_formula(alt):
         sigma_statement = propcalc.formula(sigma_conds)
         f = f.add_statement(sigma_statement,'&')
     return f
-
-def find_conditions(alt, conds):
-    P_ = 4 * [False]
-    Q_ = 6 * [False]
-    R_ = 4 * [False]
-    substitutions = []
-
-    true_terms = set()
-
-    # First find what must be true
-    for sigma in alt:
-        P_[conds[sigma][P]-1] = True
-        Q_[conds[sigma][Q]-1] = True
-        R_[conds[sigma][R]-1] = True
-        true_terms.add(p[conds[sigma][P]-1])
-        true_terms.add(q[conds[sigma][Q]-1])
-        true_terms.add(r[conds[sigma][R]-1])
-
-    for j in range(0,len(P_)):
-        if(P_[j]):
-            substitutions.append(p[j]==1)
-    for j in range(0,len(Q_)):
-            if(Q_[j]):
-                substitutions.append(q[j]==1)
-    for j in range(0,len(R_)):
-            if(R_[j]):
-                substitutions.append(r[j]==1)
-
-
-    poly = get_polynomial(alt, conds).substitute(substitutions)
-    the_false_ones = [var for var in pqr if should_be_false(poly, var)]
-    the_false_ones_zero = [var==0 for var in the_false_ones]
-
-    return sum(true_terms) + poly.substitute(the_false_ones_zero) - sum(the_false_ones) - poly.substitute(everything_zero)
-
-def find_negative_conditions(alt):
-    P_ = 4 * [False]
-    Q_ = 6 * [False]
-    R_ = 4 * [False]
-    substitutions = []
-
-    # First find what must be true
-    for sigma in alt:
-        P_[conds[sigma][P]-1] = True
-        Q_[conds[sigma][Q]-1] = True
-        R_[conds[sigma][R]-1] = True
-
-    for j in range(0,len(P_)):
-        if(P_[j]):
-            substitutions.append(p[j]==1)
-    for j in range(0,len(Q_)):
-            if(Q_[j]):
-                substitutions.append(q[j]==1)
-    for j in range(0,len(R_)):
-            if(R_[j]):
-                substitutions.append(r[j]==1)
-
-
-    poly = get_polynomial(alt).substitute(substitutions)
-    the_false_ones = [var for var in pqr if should_be_false(poly, var)]
-    the_false_ones_zero = [var==0 for var in the_false_ones]
-
-    return poly.substitute(the_false_ones_zero) - sum(the_false_ones) - poly.substitute(everything_zero)
-
-#def find_conditions(alt):
-#    P_ = 4 * [False]
-#    Q_ = 6 * [False]
-#    R_ = 4 * [False]
-#    result = []
-#
-#    # First find what must be true
-#    for sigma in alt:
-#        P_[conds[sigma][P]-1] = True
-#        Q_[conds[sigma][Q]-1] = True
-#        R_[conds[sigma][R]-1] = True
-#
-#    # Check if the set given is big enough
-#    for sigma in conds.keys():
-#        if(sigma in alt):
-#            continue
-#        if(P_[conds[sigma][P]-1]
-#        and Q_[conds[sigma][Q]-1]
-#        and R_[conds[sigma][R]-1]):
-#            return result # No conditions will yield the given subset
-#
-#
-#    return set([P])
