@@ -13,6 +13,8 @@ r = var('R1 R2 R3 R4')
 
 pqr = p + q + r
 
+alts = load('alts_mu_positive')
+
 everything_zero = [var==0 for var in pqr]
 
 def has_constant(expr):
