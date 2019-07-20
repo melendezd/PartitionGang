@@ -51,6 +51,10 @@ def omega_plot(dist, color):
     return O1 + O2 + O3 + O1_negative + O2_negative + O3_negative + O1_label + O2_label + O3_label
 
 def point_plot(dist, mu, sigmas, color, size=15):
+    if(isinstance(color,basestring)):
+        color = tuple(colors[color])
+    else:
+        color = color
     # Get the xyz coordinates
     c1_ = mu[0]
     c2_ = mu[1]
@@ -78,7 +82,7 @@ def point_plot(dist, mu, sigmas, color, size=15):
 def point_plot_fade(dist, mu, sigmas, color, size=15):
     # Get the xyz coordinates
     if(isinstance(color,basestring)):
-        col = colors[color]
+        col = tuple(colors[color])
     else:
         col = color
     c1_ = mu[0]
@@ -102,7 +106,7 @@ def point_plot_fade(dist, mu, sigmas, color, size=15):
     coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
     max_z = max([pt[2] for pt in coords_mnk_omega])
     min_z = min([pt[2] for pt in coords_mnk_omega])
-    range_z = min_z-max_z
+    range_z = max_z-min_z
     points = [point3d(pt, size, color=tuple(col[j] * (max_z-pt[2]+0.1)/range_z for j in range(0,3)), opacity=.5) for pt in coords_mnk_omega]
     return sum(points)
 
