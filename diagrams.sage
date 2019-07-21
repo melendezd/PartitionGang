@@ -163,8 +163,26 @@ def point_plot_reversed_polytope(dist, mu, sigmas, color, size=10):
 def center_plot(dist, mu, color, size=25):
     return point_plot_reversed(dist, mu, weyl_group, color, size)
 
-def center_polytope_plot(dist, mu, color, size=25):
-    return point_plot_reversed_polytope(dist, mu, weyl_group, color, size)
+def center_polytope_pts_plot(dist, mu, color, size=25):
+    return point_plot_reversed(dist, mu, weyl_group, color, size)
+
+#def center_polytope_plot(mu):
+#    pts = getPolytopePts3d(mu)
+#    pts_ = [[RDF(j) for j in v] for v in verts]
+#    print(pts_)
+#    return plot(Polyhedron(pts_))
+
+def center_polytope_plot(mu, poly=False):
+    #mu given as linear combo of w1, w2, w3
+    #convert to actual coords
+    polytope = getPolytope3d(mu)
+    verts = polytope.vertices()
+    verts = [tuple(v[0] * wp1 + v[1] * wp2 + v[2] * wp3) for v in verts]
+    verts = [[RDF(j) for j in v] for v in verts]
+    new_polytope = Polyhedron(verts)
+    if(poly):
+        return new_polytope
+    return plot(new_polytope)
 
 #def center_polytope_verts(mu, dist=10):
 #    return (omega_plot(dist=dist, color='black')
