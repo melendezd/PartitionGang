@@ -182,10 +182,10 @@ def cool_pic3(mu_a, dist=20, color='red', size=25):
         -mu_a[1] + 2*mu_a[2]), color=color, size=size))
 
 def center_polytope_pts(mu_a, dist=20, color='red', size=25):
-    return (omega_plot(dist=dist,color='black')
+    return show(omega_plot(dist=dist,color='black')
         + center_polytope_pts_plot(dist=dist,
         mu=(2*mu_a[0]-mu_a[1], -mu_a[0] + 2*mu_a[1] - mu_a[2],
-        -mu_a[1] + 2*mu_a[2]), color=color, size=size))
+        -mu_a[1] + 2*mu_a[2]), color=color, size=size), frame=False)
 
 def center_polytope_pts_2(mu, dist=20, color='red', size=25):
     return (omega_plot(dist=dist,color='black')
@@ -199,5 +199,5 @@ def center_polytope(mu_a, dist=20):
     -mu_a[1] + 2*mu_a[2])
     print(new_mu)
     return show(omega_plot(dist=dist,color='black')
-        + center_polytope_plot(new_mu)
+        + center_polytope_plot(new_mu), frame=False
         )
