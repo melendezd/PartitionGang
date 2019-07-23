@@ -392,6 +392,11 @@ def init_diagrams():
     alpha_projection_rows = gram_schmidt_symb(alphas)
     alpha_projection_cols = matrix(alpha_projection_rows).transpose()
 
+    global wp1, wp2, wp3
+    wp1 = alpha_projection_cols.solve_right(w1_)
+    wp2 = alpha_projection_cols.solve_right(w2_)
+    wp3 = alpha_projection_cols.solve_right(w3_)
+
     global ap1, ap2, ap3
     ap1 = alpha_projection_cols.solve_right(a1_)
     ap2 = alpha_projection_cols.solve_right(a2_)
