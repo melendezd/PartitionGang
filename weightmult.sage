@@ -1,3 +1,4 @@
+load('partitions.sage')
 def init():
     # We are working in the Lie algebra of type A_r
     r = 3
@@ -57,6 +58,19 @@ def init():
     weyl_action_callable = [[fast_callable(p[1][i][0], vars=[m,n,k,c1,c2,c3]) for i in range(0,3)] for p in weyl_actions()]
 
     xyz_to_mnk = [fast_callable(X, vars=[x,y,z,c1,c2,c3]) for X in sub_1]
+
+# Calculates the q-weight multiplicity of the weight space corresponding to mu
+# in the irreducible representation of sl4(C) with dominant integral weight lam
+def q_weight_mult(lam, mu):
+    # 2D array containing the value of s(lam+mu) - (rho + mu) for each s in Weyl group
+    sigma_results = [[component(*(lam+mu)) for component in vec] for vec in weyl_action_callable]
+
+    q_mult = 0
+    for vec in sigma_results:
+        if(any([j < 0 or floor(j) != j for j in vec])):
+            continue
+        q_mult += qPoly(*vec)
+    return q_mult
 
 def getPolytopePts3d(mu=(0,0,0)):
     actions = weyl_actions()
