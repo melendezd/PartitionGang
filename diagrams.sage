@@ -337,7 +337,7 @@ def point_plot_reversed(dist, mu, sigmas, color, size=10):
     min_z = min([pt[2] for pt in coords_mnk_omega])
     range_z = max_z-min_z
     print(col)
-    points = [point3d(pt, size, color=tuple(col[j] * (max_z-pt[2]+0.1)/range_z for j in range(0,3)), opacity=.5) for pt in coords_mnk_omega]
+    points = [point3d(pt, size, color=tuple(min(1,col[j] * (max_z-pt[2])/(range_z-0.5)) for j in range(0,3)), opacity=1) for pt in coords_mnk_omega]
     return sum(points)
 
 def point_plot_reversed_polytope(dist, mu, sigmas, color, size=10):
