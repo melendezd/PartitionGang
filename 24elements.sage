@@ -187,6 +187,11 @@ def center_polytope_pts(mu_a, dist=20, color='red', size=25):
         mu=(2*mu_a[0]-mu_a[1], -mu_a[0] + 2*mu_a[1] - mu_a[2],
         -mu_a[1] + 2*mu_a[2]), color=color, size=size))
 
+def center_polytope_pts_2(mu, dist=20, color='red', size=25):
+    return (omega_plot(dist=dist,color='black')
+        + center_polytope_pts_plot(dist=dist,
+        mu=mu, color=color, size=size))
+
 
 def center_polytope(mu_a, dist=20):
     new_mu = mu=(2*mu_a[0]-mu_a[1],

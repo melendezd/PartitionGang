@@ -14,6 +14,7 @@ r = var('R1 R2 R3 R4')
 pqr = p + q + r
 
 alts = load('alts_mu_positive')
+weight_mult_alts = load('weight_mult_alts')
 
 positive_conds= {
   e:{ P:1, Q:1, R:1 },
@@ -24,7 +25,7 @@ positive_conds= {
   s1:{ P:4, Q:1, R:1 },
   s2*s3*s2:{ P:1, Q:5, R:3 },
   s2*s1:{ P:4, Q:4, R:1 },
-  s3*s1:{ P:4, Q:6, R:3 },
+  s3*s1:{ P:4, Q:1, R:4 },
   s3*s2:{ P:1, Q:6, R:3 },
   s2:{ P:1, Q:6, R:1 },
   s3*s1*s2:{ P:3, Q:6, R:3 }
@@ -84,7 +85,8 @@ def find_conditions(alt, conds):
                             false_.remove(suspect)
                             #false_[j] = false_[j].difference(f)
 
-    return (true_,false_)
+    return (true_,remove_duplicates(false_))
+
 
 def get_general_formula(alt, conds):
     true_ = set()
@@ -118,3 +120,58 @@ def get_formula(alt):
         sigma_statement = propcalc.formula(sigma_conds)
         f = f.add_statement(sigma_statement,'&')
     return f
+
+
+alt_conds = dict((alt, find_conditions(alt, all_conds)) for alt in alts)
+alt_conds_pos = dict((alt, find_conditions(alt, positive_conds)) for alt in weight_mult_alts)
+
+def pretty_print_conds(conds_dict, subset):
+    (pos, neg) = conds_dict[subset]
+    latex = ''
+
+    # String for Weyl group subset
+    subset_str = '\{%s\}' % (''.join(str(s)+',' for s in subset))[:-1]
+
+    # String for nonnegative conditions
+    pos_str = '%s\\in\\N' % (''.join(str(cond)+',' for cond in pos))[:-1]
+
+    latex += '%s & %s' % (subset_str, pos_str)
+
+    # String for single negative conditions
+    neg_ones = set.union(*[s for s in neg if len(s) == 1])
+    neg_others = [s for s in neg if len(s) > 1]
+
+    if(len(neg_ones) != 0):
+        neg_ones_str = '%s\\notin\\N' % (''.join(str(cond)+',' for cond in neg_ones))[:-1]
+        latex += '\\ \\text{and}\\ %s' % neg_ones_str
+
+    neg_others_str = ''
+    if(len(neg_others) != 0):
+        for s in neg_others:
+            neg_others_str += '('
+            for cond in s:
+                this_subset_str = '%s\\notin\\N' % str(cond)
+                neg_others_str += '%s\\ \\text{or}\\ ' % this_subset_str
+            neg_others_str = neg_others_str[:-13]
+            neg_others_str += ')'
+            #this_subset_str = '(%s\\notin\\N)' % (''.join(str(cond)+'\\ \\text{or}\\ ' for cond in neg_ones))
+            neg_others_str += '\\ \\text{and}\\ '
+        neg_others_str = neg_others_str[:-14]
+        latex += '\\ \\text{and}\\ %s' % neg_others_str
+
+    latex += '\\\\'
+    latex = latex.replace('P', 'P_')
+    latex = latex.replace('Q', 'Q_')
+    latex = latex.replace('R', 'R_')
+    latex = latex.replace('s', 's_')
+    latex = latex.replace('*', '')
+    #latex = '%s & %s \\text{and}\\ %s\\ \\text{and}\\  %s' % (subset_str,
+    #pos_str, neg_ones_str, neg_others_str)
+    return latex
+
+def all_conds_latex(conds_dict, fname):
+    f = open(fname, 'w+')
+    for subset in conds_dict.keys():
+        if(subset != frozenset()):
+            f.write('%s\r\n' % pretty_print_conds(conds_dict, subset))
+    f.close()

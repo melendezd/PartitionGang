@@ -42,13 +42,157 @@ def omega_plot(dist, color):
     O1 = Line([(0,0,0), tuple(dist*wp1)], arrow_head=True, color=color)
     O2 = Line([(0,0,0), tuple(dist*wp2)], arrow_head=True, color=color)
     O3 = Line([(0,0,0), tuple(dist*wp3)], arrow_head=True, color=color)
-    O1_label = text3d("ω_1", tuple((dist+1.3)*wp1), color=color)
-    O2_label = text3d("ω_2", tuple((dist+1.3)*wp2), color=color)
-    O3_label = text3d("ω_3", tuple((dist+1.3)*wp3), color=color)
+    O1_label = text3d("w_1", tuple((dist+1.3)*wp1), color=color)
+    O2_label = text3d("w_2", tuple((dist+1.3)*wp2), color=color)
+    O3_label = text3d("w_3", tuple((dist+1.3)*wp3), color=color)
     O1_negative = Line([(0,0,0), tuple(-dist*wp1)], arrow_head=True, color=color)
     O2_negative = Line([(0,0,0), tuple(-dist*wp2)], arrow_head=True, color=color)
     O3_negative = Line([(0,0,0), tuple(-dist*wp3)], arrow_head=True, color=color)
     return O1 + O2 + O3 + O1_negative + O2_negative + O3_negative + O1_label + O2_label + O3_label
+
+def operation_1_plot():
+    vec = Line([(0,0,0), tuple(ap1+ap2)], color='blue', arrow_head=True)
+    vec_1 = Line([(0,0,0), tuple(ap1)], color='gray', arrow_head=True)
+    vec_2 = Line([tuple(ap1), tuple(ap1+ap2)], color='gray', arrow_head=True)
+    return vec + vec_1 + vec_2
+
+def operation_2_plot():
+    vec = Line([(0,0,0), tuple(ap2+ap3)], color='red', arrow_head=True)
+    vec_1 = Line([(0,0,0), tuple(ap2)], color='gray', arrow_head=True)
+    vec_2 = Line([tuple(ap2), tuple(ap2+ap3)], color='gray', arrow_head=True)
+    return vec + vec_1 + vec_2
+
+def operation_3_plot():
+    vec = Line([(0,0,0), tuple(ap1+ap2+ap3)], color='green', arrow_head=True)
+    vec_1 = Line([(0,0,0), tuple(ap1)], color='gray', arrow_head=True)
+    vec_2 = Line([tuple(ap1), tuple(ap1+ap2)], color='gray', arrow_head=True)
+    vec_3 = Line([tuple(ap1+ap2), tuple(ap1+ap2+ap3)], color='gray', arrow_head=True)
+    return vec + vec_1 + vec_2 + vec_3
+
+def partition_plot():
+    vec = Line([(0,0,0), tuple(2*ap1+2*ap2+2*ap3)], color='violet', arrow_head=True)
+
+    # First partition: al_1 + al_2 + al_3 + (al_1+al_2+al_3)
+    #+al_1
+    vec_1_2 = Line([(0,0,0), tuple(ap1)], color='gray', arrow_head=True)
+    #+(a_1+al_2+al_3)
+    vec_1_1 = Line([tuple(ap1), tuple(2*ap1+ap2+ap3)], color='green', arrow_head=True)
+    #+al_2
+    vec_1_3 = Line([tuple(2*ap1+ap2+ap3), tuple(2*ap1+2*ap2+ap3)], color='gray', arrow_head=True)
+    #+al_3
+    vec_1_4 = Line([tuple(2*ap1+2*ap2+ap3), tuple(2*ap1+2*ap2+2*ap3)], color='gray', arrow_head=True)
+
+    # Second partition: al_1 + al_3 + (al_1+al_2) + (al_2+al_3)
+    #+al_1
+    vec_2_1 = Line([(0,0,0), tuple(ap1)], color='gray', arrow_head=True)
+    #+al_3
+    vec_2_2 = Line([tuple(ap1), tuple(ap1+ap3)], color='gray', arrow_head=True)
+    #+(al_1+al_2)
+    vec_2_3 = Line([tuple(ap1+ap3), tuple(2*ap1+ap2+ap3)], color='blue', arrow_head=True)
+    #+(al_2+al_3)
+    vec_2_4 = Line([tuple(2*ap1+ap2+ap3), tuple(2*ap1+2*ap2+2*ap3)], color='red', arrow_head=True)
+
+    #return vec + vec_1_1 + vec_1_2 + vec_1_3 + vec_1_4
+    return vec + vec_2_1 + vec_2_2 + vec_2_3 + vec_2_4
+
+def positive_root_plot(dist, color, color1, color2, color3, thickness):
+    t = thickness
+
+    pO1 = tuple(ap1)
+    pO_1 = tuple(-ap1)
+    pO2 = tuple(ap2)
+    pO_2 = tuple(-ap2)
+    pO3 = tuple(ap3)
+    pO_3 = tuple(-ap3)
+
+    pO12 = tuple(ap1+ap2)
+    pO1_2 = tuple(ap1-ap2)
+    pO_12 = tuple(-ap1+ap2)
+    pO_1_2 = tuple(-ap1-ap2)
+
+    pO23 = tuple(ap2+ap3)
+    pO2_3 = tuple(ap2-ap3)
+    pO_23 = tuple(-ap2+ap3)
+    pO_2_3 = tuple(-ap2-ap3)
+
+    pO123 = tuple(ap1+ap2+ap3)
+    pO_123 = tuple(-ap1+ap2+ap3)
+    pO1_23 = tuple(ap1-ap2+ap3)
+    pO12_3 = tuple(ap1+ap2-ap3)
+    pO_1_23 = tuple(-ap1-ap2+ap3)
+    pO1_2_3 = tuple(ap1-ap2-ap3)
+    pO_12_3 = tuple(-ap1+ap2-ap3)
+    pO_1_2_3 = tuple(-ap1-ap2-ap3)
+
+    label_A1 = text3d("a_1", tuple((norm(ap1))*ap1), color=color1)
+    label_A2 = text3d("a_2", tuple((norm(ap2))*ap2), color=color1)
+    label_A3 = text3d("a_3", tuple((norm(ap3))*ap3), color=color1)
+    label_A12 = text3d("a_1+a_2", tuple((norm(ap1+ap2))*(ap1+ap2)), color=color2)
+    label_A23 = text3d("a_2+a_3", tuple((norm(ap2+ap3))*(ap2+ap3)), color=color2)
+    label_A123 = text3d("a_1+a_2+a_3", tuple((norm(ap1+ap2+ap3))*(ap1+ap2+ap3)), color=color3)
+    labels = label_A1 + label_A2 + label_A3 + label_A12 + label_A23 + label_A123
+
+    verts = [pO1, pO_1, pO2, pO_2, pO3, pO_3, pO12, pO1_2, pO_12, pO_1_2,
+    pO23, pO2_3, pO_23, pO_2_3, pO123, pO_123, pO1_23, pO12_3, pO_1_23,
+    pO1_2_3, pO_12_3, pO_1_2_3]
+    verts = [tuple(RDF(j) for j in v) for v in verts]
+
+    O1 = Line([(0,0,0), tuple(ap1)], arrow_head=True, color=color1, thickness=t)
+    O_1 = Line([(0,0,0), tuple(-ap1)], arrow_head=True, color=color1, thickness=t)
+    O2 = Line([(0,0,0), tuple(ap2)], arrow_head=True, color=color1, thickness=t)
+    O_2 = Line([(0,0,0), tuple(-ap2)], arrow_head=True, color=color1, thickness=t)
+    O3 = Line([(0,0,0), tuple(ap3)], arrow_head=True, color=color1, thickness=t)
+    O_3 = Line([(0,0,0), tuple(-ap3)], arrow_head=True, color=color1, thickness=t)
+
+    O12 = Line([(0,0,0), tuple(ap1+ap2)], arrow_head=True, color=color2, thickness=t)
+    O1_2 = Line([(0,0,0), tuple(ap1-ap2)], arrow_head=True, color=color, thickness=t)
+    O_12 = Line([(0,0,0), tuple(-ap1+ap2)], arrow_head=True, color=color, thickness=t)
+    O_1_2 = Line([(0,0,0), tuple(-ap1-ap2)], arrow_head=True, color=color2, thickness=t)
+
+
+    O23 = Line([(0,0,0), tuple(ap2+ap3)], arrow_head=True, color=color2, thickness=t)
+    O2_3 = Line([(0,0,0), tuple(ap2-ap3)], arrow_head=True, color=color, thickness=t)
+    O_23 = Line([(0,0,0), tuple(-ap2+ap3)], arrow_head=True, color=color, thickness=t)
+    O_2_3 = Line([(0,0,0), tuple(-ap2-ap3)], arrow_head=True, color=color2, thickness=t)
+
+    O123 = Line([(0,0,0), tuple(ap1+ap2+ap3)], arrow_head=True, color=color3, thickness=t)
+    O_123 = Line([(0,0,0), tuple(-ap1+ap2+ap3)], arrow_head=True, color=color, thickness=t)
+    O1_23 = Line([(0,0,0), tuple(ap1-ap2+ap3)], arrow_head=True, color=color, thickness=t)
+    O12_3 = Line([(0,0,0), tuple(ap1+ap2-ap3)], arrow_head=True, color=color, thickness=t)
+    O_1_23 = Line([(0,0,0), tuple(-ap1-ap2+ap3)], arrow_head=True, color=color, thickness=t)
+    O1_2_3 = Line([(0,0,0), tuple(ap1-ap2-ap3)], arrow_head=True, color=color, thickness=t)
+    O_12_3 = Line([(0,0,0), tuple(-ap1+ap2-ap3)], arrow_head=True, color=color, thickness=t)
+    O_1_2_3 = Line([(0,0,0), tuple(-ap1-ap2-ap3)], arrow_head=True, color=color3, thickness=t)
+
+
+    #O1_label = text3d("a_1", tuple((dist+1.3)*ap1), color=color)
+    #O2_label = text3d("a_2", tuple((dist+1.3)*ap2), color=color)
+    #O3_label = text3d("a_3", tuple((dist+1.3)*ap3), color=color)
+    #P = show(Polyhedron(vertices=verts))
+    #P = point3d(verts, size=20)
+    return (O1 + O_1 + O2 + O_2 + O3 + O_3 +
+    O12 + O1_2 + O_12 + O_1_2 +
+    O23 + O2_3 + O_23 + O_2_3 +
+    O123 + O_123 + O1_23 + O12_3 +
+    O_1_23 + O1_2_3 + O_12_3 + O_1_2_3
+    + labels
+    )
+
+def simple_root_plot():
+    pO1 = tuple(ap1)
+    pO2 = tuple(ap2)
+    pO3 = tuple(ap3)
+
+    O1 = Line([(0,0,0), tuple(ap1)], arrow_head=True, color='red')
+    O2 = Line([(0,0,0), tuple(ap2)], arrow_head=True, color='green')
+    O3 = Line([(0,0,0), tuple(ap3)], arrow_head=True, color='blue')
+
+    return O1+O2+O3
+
+def normalPlane(vec, dist):
+    tup = tuple(vec)
+    plane = x*vec[0] + y*vec[1] + z*vec[2] == 0
+    return implicit_plot3d(plane, (x, -dist, dist), (y,-dist,dist), (z,-dist,dist),opacity=.5)
 
 def point_plot(dist, mu, sigmas, color, size=15):
     if(isinstance(color,basestring)):
@@ -225,18 +369,33 @@ def init_diagrams():
     w2_ = vector(w2.transpose())
     w3_ = vector(w3.transpose())
 
+    global a1_, a2_, a3_
+    a1_ = vector(a1.transpose())
+    a2_ = vector(a2.transpose())
+    a3_ = vector(a3.transpose())
+
     # Matrix whose rows are w1, w2, w3
     global omegas
     omegas = matrix([w1_, w2_, w3_], ring=QQ)
 
+    # Matrix whose rows are a1, a2, a3
+    global alphas
+    alphas = matrix([a1_, a2_, a3_], ring=QQ)
+
+    # bb is projection basis for omegas
     global bb, bbMat
     bb = gram_schmidt_symb(omegas)
     bbMat = matrix(bb).transpose()
 
-    global wp1, wp2, wp3
-    wp1 = bbMat.solve_right(w1_)
-    wp2 = bbMat.solve_right(w2_)
-    wp3 = bbMat.solve_right(w3_)
+    # alpha_projection is projection basis for alphas
+    global alpha_projection_rows, alpha_projection_cols
+    alpha_projection_rows = gram_schmidt_symb(alphas)
+    alpha_projection_cols = matrix(alpha_projection_rows).transpose()
+
+    global ap1, ap2, ap3
+    ap1 = alpha_projection_cols.solve_right(a1_)
+    ap2 = alpha_projection_cols.solve_right(a2_)
+    ap3 = alpha_projection_cols.solve_right(a3_)
 
 def gram_schmidt_symb(M):
     return [v.normalized() for v in M.gram_schmidt()[0].rows()]
