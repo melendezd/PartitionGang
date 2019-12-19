@@ -53,8 +53,9 @@ def init():
     sub_s2_result = weyl_actions_sub(*sub_s2);
     sub_s3_result = weyl_actions_sub(*sub_s3);
 
-    global sub_1_callable, xyz_to_mnk, weyl_action_callable
+    global sub_1_callable, xyz_to_mnk, weyl_action_callable, sub_1_callable_dict
     sub_1_callable = [[fast_callable(p[1][i][0], vars=[x,y,z,c1,c2,c3]) for i in range(0,3)] for p in sub_1_result]
+    sub_1_callable_dict = dict([(p[0], [fast_callable(p[1][i][0], vars=[x,y,z,c1,c2,c3]) for i in range(0,3)]) for p in sub_1_result])
     weyl_action_callable = [[fast_callable(p[1][i][0], vars=[m,n,k,c1,c2,c3]) for i in range(0,3)] for p in weyl_actions()]
 
     xyz_to_mnk = [fast_callable(X, vars=[x,y,z,c1,c2,c3]) for X in sub_1]
@@ -385,6 +386,7 @@ def find_subsets_yz_op(x_,y1,y2,z1,z2,c1_,c2_,c3_):
             theset.add(frozenset(subset))
     return theset
 
+'''
 @parallel
 def find_subsets_lam_yz_op(x_,y1,y2,z1,z2,c1_,c2_,c3_):
     theset = set()
@@ -397,12 +399,43 @@ def find_subsets_lam_yz_op(x_,y1,y2,z1,z2,c1_,c2_,c3_):
                 #vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
                 p = sub_1_callable[i]
                 mnk = [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in range(0,3)];
+                (m_,n_,k_) = mnk
                 if(mnk[0] >= 0 and mnk[1] >= 0 and mnk[2] >= 0 and
                 p[0](x_,y_,z_,c1_,c2_,c3_) >= 0 and p[1](x_,y_,z_,c1_,c2_,c3_)>=0
                         and p[2](x_,y_,z_,c1_,c2_,c3_)>=0):
                     subset.add(sub_1_result[i][0])
+            thisset = frozenset(subset)
+            if (thisset == frozenset([e,s1,s2])):
+                #print((x_, y_, z_))
+                print((m_,n_,k_))
             theset.add(frozenset(subset))
     return theset
+'''
+@parallel
+def find_subsets_lam_yz_op(x_,y1,y2,z1,z2,c1_,c2_,c3_):
+    theset = set()
+
+    for y_ in range(y1, y2):
+        for z_ in range(z1, z2):
+            subset = set()
+            #for p in sub_1_callable:
+            for s in W:
+                #vec = p[1].substitute([x==x_, y==y_, z==z_, c1==c1_, c2==c2_, c3==c3_])
+                p = sub_1_callable_dict[s]
+                mnk = [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in range(0,3)];
+                (m_,n_,k_) = mnk
+                if(mnk[0] >= 0 and mnk[1] >= 0 and mnk[2] >= 0 and
+                p[0](x_,y_,z_,c1_,c2_,c3_) >= 0 and p[1](x_,y_,z_,c1_,c2_,c3_)>=0
+                        and p[2](x_,y_,z_,c1_,c2_,c3_)>=0):
+                    subset.add(s)
+            thisset = frozenset(subset)
+            if (thisset == frozenset([e,s1,s2])):
+                #print((x_, y_, z_))
+                print((m_,n_,k_))
+            theset.add(frozenset(subset))
+    return theset
+
+
 
 @parallel
 def find_subsets_xyz_op(x1,x2,y1,y2,z1,z2,c1_,c2_,c3_):

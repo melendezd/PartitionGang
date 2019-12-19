@@ -178,16 +178,19 @@ def positive_root_plot(dist, color, color1, color2, color3, thickness):
     + labels
     )
 
-def simple_root_plot():
+def simple_root_plot(scale=1):
     pO1 = tuple(ap1)
     pO2 = tuple(ap2)
     pO3 = tuple(ap3)
 
-    O1 = Line([(0,0,0), tuple(ap1)], arrow_head=True, color='red')
-    O2 = Line([(0,0,0), tuple(ap2)], arrow_head=True, color='green')
-    O3 = Line([(0,0,0), tuple(ap3)], arrow_head=True, color='blue')
+    O1 = arrow3d(start=(0,0,0), end=tuple(ap1*scale), color='red')
+    O2 = arrow3d(start=(0,0,0), end=tuple(ap2*scale), color='green')
+    O3 = arrow3d(start=(0,0,0), end=tuple(ap3*scale), color='blue')
+    O1_label = text3d("a_1", tuple((scale+0.3)*ap1), color='red')
+    O2_label = text3d("a_2", tuple((scale+0.3)*ap2), color='green')
+    O3_label = text3d("a_3", tuple((scale+0.3)*ap3), color='blue')
 
-    return O1+O2+O3
+    return O1+O2+O3 + O1_label + O2_label + O3_label
 
 def normalPlane(vec, dist):
     tup = tuple(vec)
@@ -222,8 +225,26 @@ def point_plot(dist, mu, sigmas, color, size=15):
     points = point3d(coords_mnk_omega, size, color=color, opacity=.5)
     return points
 
+'''
+Finds the Weyl alternation set for lam = mw_1 + nw_2 + kw_3
+and mu = c_1w_1 + c_2w_2 + c_3w+3
+'''
+def alternation_set(lam, mu=(0,0,0)):
+    (x_, y_, z_) = lam
+    (c1_, c2_, c3_) = mu
+    alt_set = set()
+    sub1dict = dict(sub_1_result)
+    for s in W:
+        if all( [
+            sub_1_callable_dict[s][j](x_,y_,z_,c1_,c2_,c3_) >= 0
+            for j in range(0,3)]):
+            print((s,[sub_1_callable[list(sub1dict.keys()).index(s)][j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]]))
+            alt_set.add(s)
+    return alt_set
 
-def point_plot_fade(dist, mu, sigmas, color, size=15):
+'''
+def point_plot_fade_only(dist, mu, sigmas, color, size=15):
+    others = set(W).difference(sigmas)
     # Get the xyz coordinates
     if(isinstance(color,basestring)):
         col = tuple(colors[color])
@@ -240,19 +261,97 @@ def point_plot_fade(dist, mu, sigmas, color, size=15):
             if all( [
                 sub_1_callable[list(sub1dict.keys()).index(s)][j](x_,y_,z_,c1_,c2_,c3_) >= 0
                 for j in range(0,3) for s in sigmas])
+            and all( [ # For every other sigma
+                any([sub_1_callable[list(sub1dict.keys()).index(s)][j](x_,y_,z_,c1_,c2_,c3_) < 0 for j in range(0,3)]) # this sigma does not contribute
+                for s in others])
         ]
 
+    # A * [alpha coeffs vector] = [omega coeffs vector]
+    A = matrix([[3/4, 1/2, 1/4], [1/2, 1, 1/2], [1/4, 1/2, 3/4]])
+
     # Substitute in m,n,k
-    coords_mnk = [tuple( [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]] )
+    coeffs_mnk_omega = [tuple( [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]] )
         for (x_,y_,z_) in coords_xyz]
+    coeffs_mnk_alpha = [A.solve_right(vector(omega_coeffs)) 
+            for omega_coeffs in coeffs_mnk_omega]
 
     # Transform into omega coordinates
-    coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
-    max_z = max([pt[2] for pt in coords_mnk_omega])
-    min_z = min([pt[2] for pt in coords_mnk_omega])
+    #coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
+    coords_mnk_alpha = [m_*ap1 + n_*ap2 + k_*ap3 for (m_,n_,k_) in coeffs_mnk_alpha]
+    print(coords_mnk_alpha)
+    if (not coords_mnk_alpha):
+        print('empty')
+        return 0;
+    #coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk if m_>=0 and n_>=0 and k_>=0]
+    max_z = max([pt[2] for pt in coords_mnk_alpha])
+    min_z = min([pt[2] for pt in coords_mnk_alpha])
     range_z = max_z-min_z
-    points = [point3d(pt, size, color=tuple(col[j] * (max_z-pt[2]+0.1)/range_z for j in range(0,3)), opacity=.5) for pt in coords_mnk_omega]
+    if (range_z == 0):
+        range_z = 1
+    points = [point3d(pt, size, color=tuple(col[j] * (max_z-pt[2]+0.1)/range_z for j in range(0,3)), opacity=.5) for pt in coords_mnk_alpha]
     return sum(points)
+'''
+
+def point_plot_fade_only(dist, mu, sigmas, color, size=15):
+    others = set(W).difference(sigmas)
+    # Get the xyz coordinates
+    if(isinstance(color,basestring)):
+        col = tuple(colors[color])
+    else:
+        col = color
+    c1_ = mu[0]
+    c2_ = mu[1]
+    c3_ = mu[2]
+    sub1dict = dict(sub_1_result)
+    coords_xyz = [
+            (x_, y_, z_)
+            for x_ in range(-dist, dist) for y_ in range(-dist, dist)
+            for z_ in range(-dist, dist)
+            if all( [
+                sub_1_callable_dict[s][j](x_,y_,z_,c1_,c2_,c3_) >= 0
+                for j in range(0,3) for s in sigmas])
+            and all( [ # For every other sigma
+                any([sub_1_callable_dict[s][j](x_,y_,z_,c1_,c2_,c3_) < 0 for j in range(0,3)]) # this sigma does not contribute
+                for s in others])
+        ]
+
+    # A * [alpha coeffs vector] = [omega coeffs vector]
+    A = matrix([[3/4, 1/2, 1/4], [1/2, 1, 1/2], [1/4, 1/2, 3/4]])
+    #print(A.solve_right(vector([0,1,2])))
+
+    # Substitute in m,n,k
+    coeffs_mnk_omega = [tuple( [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]] )
+        for (x_,y_,z_) in coords_xyz]
+    coeffs_mnk_omega_nn = [vec for vec in coeffs_mnk_omega 
+            if all([vec[j] >= 0 for j in [0,1,2]])]
+    coeffs_mnk_alpha = [A*vector(omega_coeffs) 
+            for omega_coeffs in coeffs_mnk_omega]
+    coeffs_mnk_alpha_nn = [vec for vec in coeffs_mnk_alpha 
+            if all([vec[j] >= 0 for j in [0,1,2]])]
+    #coeffs_mnk_alpha = [(m_, n_, k_) for (m_,n_,k_) in coeffs_mnk_alpha if m_ >= 0 and n_>=0 and k_>=0]
+
+    # Transform into omega coordinates
+    #coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
+    coords_mnk_alpha = [m_*ap1 + n_*ap2 + k_*ap3 for (m_,n_,k_) in coeffs_mnk_alpha]
+    coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coeffs_mnk_omega]
+    coords_mnk_alpha_nn = [m_*ap1 + n_*ap2 + k_*ap3 
+        for (m_,n_,k_) in coeffs_mnk_alpha_nn]
+    coords_mnk_omega_nn = [m_*wp1 + n_*wp2 + k_*wp3 
+        for (m_,n_,k_) in coeffs_mnk_omega_nn]
+    pts = coeffs_mnk_alpha_nn
+    pts_plot = coords_mnk_alpha_nn
+    print(pts)
+    if (not pts):
+        print('empty')
+        return 0;
+    #coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk if m_>=0 and n_>=0 and k_>=0]
+    max_z = max([pt[2] for pt in pts_plot])
+    min_z = min([pt[2] for pt in pts_plot])
+    range_z = max_z-min_z
+    if (range_z == 0):
+        range_z = 1
+    points = [point3d(pt, size, color=tuple(col[j] * (max_z-pt[2]+0.1)/range_z for j in range(0,3)), opacity=.5) for pt in pts_plot]
+    return sum(points) + simple_root_plot(range_z)
 
 def point_plot_reversed_old(dist, mu, sigmas, color, size=10):
     # Get the xyz coordinates
