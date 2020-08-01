@@ -183,14 +183,19 @@ def simple_root_plot(scale=1):
     pO2 = tuple(ap2)
     pO3 = tuple(ap3)
 
-    O1 = arrow3d(start=(0,0,0), end=tuple(ap1*scale), color='red')
-    O2 = arrow3d(start=(0,0,0), end=tuple(ap2*scale), color='green')
-    O3 = arrow3d(start=(0,0,0), end=tuple(ap3*scale), color='blue')
-    O1_label = text3d("a_1", tuple((scale+0.3)*ap1), color='red')
-    O2_label = text3d("a_2", tuple((scale+0.3)*ap2), color='green')
-    O3_label = text3d("a_3", tuple((scale+0.3)*ap3), color='blue')
+    width = scale
+    txt = 400
+    O1 = arrow3d(start=(0,0,0), end=tuple(ap1*scale), color='red', width=width)
+    O2 = arrow3d(start=(0,0,0), end=tuple(ap2*scale), color='green', width=width)
+    O3 = arrow3d(start=(0,0,0), end=tuple(ap3*scale), color='blue', width=width)
+    O1_label = text3d("a_1", tuple((scale+0.3)*ap1), color='black', 
+            fontsize='xx-large', fontweight='black', background_color='white')
+    O2_label = text3d("a_2", tuple((scale+0.3)*ap2), color='black', 
+            fontsize='xx-large', fontweight='black', background_color='white')
+    O3_label = text3d("a_3", tuple((scale+0.3)*ap3), color='black', 
+            fontsize='xx-large', fontweight='black', background_color='white')
 
-    return O1+O2+O3 + O1_label + O2_label + O3_label
+    return O1+O2+O3
 
 def normalPlane(vec, dist):
     tup = tuple(vec)
@@ -292,6 +297,73 @@ def point_plot_fade_only(dist, mu, sigmas, color, size=15):
     return sum(points)
 '''
 
+color_dict = {
+        frozenset([e]) : (0,0,0), 
+        frozenset([e,s2]) : (1,0,0), 
+        frozenset([e,s2,s3]) : (0,1,0), 
+        frozenset([e,s1,s2]) : (0,0,1), 
+        frozenset([e,s2,s3,s2*s3]) : (1,1,0), 
+        frozenset([e,s1,s3,s3*s1]) : (0,1,1), 
+        frozenset([e,s1,s2,s2*s1]) : (.25,1,1), 
+        frozenset([e,s1,s2,s3,s3*s1]) : (1,1,.25), 
+        frozenset([e,s1,s2,s3,s2*s3,s3*s1]) : (1,.25,.25), 
+        frozenset([e,s1,s2,s3,s2*s1,s3*s1]) : (.25,.5,1), 
+        frozenset([e,s2,s3,s2*s3,s3*s2,s2*s3*s2]) : (.25,1,.25), 
+        frozenset([e,s1,s2,s1*s2,s2*s1,s1*s2*s1]) : (1,.25,.75), 
+        }
+pos_lambda_alts = color_dict.keys()
+
+def plot_only(sigmas, size=15, dist=20):
+    sigmas_set = frozenset(sigmas)
+    print(sigmas)
+    point_plot_fade_only(dist=dist, mu=(0,0,0), sigmas=sigmas, 
+            color=color_dict[sigmas_set], size=size)
+
+def print_only(sigmas, dist=20):
+    mu = (0,0,0)
+    others = set(W).difference(sigmas)
+    c1_ = mu[0]
+    c2_ = mu[1]
+    c3_ = mu[2]
+    sub1dict = dict(sub_1_result)
+    coords_xyz = [
+            (x_, y_, z_)
+            for x_ in range(-dist, dist) for y_ in range(-dist, dist)
+            for z_ in range(-dist, dist)
+            if all( [
+                sub_1_callable_dict[s][j](x_,y_,z_,c1_,c2_,c3_) >= 0
+                for j in range(0,3) for s in sigmas])
+            and all( [ # For every other sigma
+                any([sub_1_callable_dict[s][j](x_,y_,z_,c1_,c2_,c3_) < 0 for j in range(0,3)]) # this sigma does not contribute
+                for s in others])
+        ]
+
+    # A * [alpha coeffs vector] = [omega coeffs vector]
+    A = matrix([[3/4, 1/2, 1/4], [1/2, 1, 1/2], [1/4, 1/2, 3/4]])
+    #print(A.solve_right(vector([0,1,2])))
+
+    # Substitute in m,n,k
+    coeffs_mnk_omega = [tuple( [xyz_to_mnk[j](x_,y_,z_,c1_,c2_,c3_) for j in [0,1,2]] )
+        for (x_,y_,z_) in coords_xyz]
+    coeffs_mnk_omega_nn = [vec for vec in coeffs_mnk_omega 
+            if all([vec[j] >= 0 for j in [0,1,2]])]
+    coeffs_mnk_alpha = [A*vector(omega_coeffs) 
+            for omega_coeffs in coeffs_mnk_omega]
+    coeffs_mnk_alpha_nn = [vec for vec in coeffs_mnk_alpha 
+            if all([vec[j] >= 0 for j in [0,1,2]])]
+    #coeffs_mnk_alpha = [(m_, n_, k_) for (m_,n_,k_) in coeffs_mnk_alpha if m_ >= 0 and n_>=0 and k_>=0]
+
+    # Transform into omega coordinates
+    #coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk]
+    coords_mnk_alpha = [m_*ap1 + n_*ap2 + k_*ap3 for (m_,n_,k_) in coeffs_mnk_alpha]
+    coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coeffs_mnk_omega]
+    coords_mnk_alpha_nn = [m_*ap1 + n_*ap2 + k_*ap3 
+        for (m_,n_,k_) in coeffs_mnk_alpha_nn]
+    coords_mnk_omega_nn = [m_*wp1 + n_*wp2 + k_*wp3 
+        for (m_,n_,k_) in coeffs_mnk_omega_nn]
+    pts = coeffs_mnk_alpha_nn
+    print(pts)
+
 def point_plot_fade_only(dist, mu, sigmas, color, size=15):
     others = set(W).difference(sigmas)
     # Get the xyz coordinates
@@ -339,19 +411,19 @@ def point_plot_fade_only(dist, mu, sigmas, color, size=15):
     coords_mnk_omega_nn = [m_*wp1 + n_*wp2 + k_*wp3 
         for (m_,n_,k_) in coeffs_mnk_omega_nn]
     pts = coeffs_mnk_alpha_nn
+    print(len(pts))
     pts_plot = coords_mnk_alpha_nn
-    print(pts)
     if (not pts):
         print('empty')
         return 0;
     #coords_mnk_omega = [m_*wp1 + n_*wp2 + k_*wp3 for (m_,n_,k_) in coords_mnk if m_>=0 and n_>=0 and k_>=0]
-    max_z = max([pt[2] for pt in pts_plot])
-    min_z = min([pt[2] for pt in pts_plot])
+    max_z = max([pt[2] for pt in pts_plot])+1
+    min_z = min([pt[2] for pt in pts_plot])-1
     range_z = max_z-min_z
     if (range_z == 0):
         range_z = 1
-    points = [point3d(pt, size, color=tuple(col[j] * (max_z-pt[2]+0.1)/range_z for j in range(0,3)), opacity=.5) for pt in pts_plot]
-    return sum(points) + simple_root_plot(range_z)
+    points = [point3d(pt, size, color=tuple(col[j] * (max_z-pt[2]+0.1)/range_z for j in range(0,3)), opacity=.75) for pt in pts_plot]
+    return show(sum(points) + simple_root_plot(range_z), frame=False)
 
 def point_plot_reversed_old(dist, mu, sigmas, color, size=10):
     # Get the xyz coordinates
